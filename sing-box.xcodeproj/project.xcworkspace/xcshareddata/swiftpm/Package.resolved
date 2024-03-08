@@ -46,6 +46,15 @@
       }
     },
     {
+      "identity" : "sing-box-lib",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/EbrahimTahernejad/sing-box-lib",
+      "state" : {
+        "revision" : "f28224e8fd9005d495c399cc4b5c2a8c74eb5660",
+        "version" : "1.8.7"
+      }
+    },
+    {
       "identity" : "swift-markdown-ui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gonzalezreal/swift-markdown-ui",
