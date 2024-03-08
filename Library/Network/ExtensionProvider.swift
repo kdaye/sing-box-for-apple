@@ -39,7 +39,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
         if platformInterface == nil {
             platformInterface = ExtensionPlatformInterface(self)
         }
-        commandServer = try await LibboxNewCommandServer(platformInterface, Int32(SharedPreferences.maxLogLines.get()))
+        commandServer = await LibboxNewCommandServer(platformInterface, Int32(SharedPreferences.maxLogLines.get()))
         do {
             try commandServer.start()
         } catch {
@@ -86,7 +86,7 @@ open class ExtensionProvider: NEPacketTunnelProvider {
         }
         let configContent: String
         do {
-            configContent = try await profile.read()
+            configContent = try profile.read()
         } catch {
             writeFatalError("(packet-tunnel) error: read config file \(profile.path): \(error.localizedDescription)")
             return

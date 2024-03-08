@@ -64,7 +64,7 @@
 		3A57DF372A4D5D2600690BC5 /* Profile+Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A57DF362A4D5D2600690BC5 /* Profile+Date.swift */; };
 		3A57DF422A4D927A00690BC5 /* Profile+Hashable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A57DF412A4D927A00690BC5 /* Profile+Hashable.swift */; };
 		3A5F26C82A503D4A00C27EDF /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
-		3A5F26C92A503D4A00C27EDF /* Library.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3A5F26C92A503D4A00C27EDF /* Library.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3A60CC272B70880100D2D682 /* PacketTunnelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A60CC262B70880100D2D682 /* PacketTunnelView.swift */; };
 		3A60CC292B70A7C400D2D682 /* Color+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A60CC282B70A7C400D2D682 /* Color+Extension.swift */; };
 		3A60CC2B2B70AD6700D2D682 /* SettingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A60CC2A2B70AD6700D2D682 /* SettingView.swift */; };
@@ -140,7 +140,6 @@
 		3AEECC3A2A6DFDC5006A0E0C /* MacLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */; };
 		3AEECC3F2A6DFDF7006A0E0C /* MacLibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEECC3E2A6DFDF7006A0E0C /* MacLibrary.swift */; };
 		3AEECC402A6DFE10006A0E0C /* ApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC194512A50303300BD8CB9 /* ApplicationDelegate.swift */; };
-		3AEECC412A6DFE29006A0E0C /* MacLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */; };
 		3AEECC452A6DFE61006A0E0C /* ApplicationLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */; };
 		3AEECC4A2A6DFEBB006A0E0C /* Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AEC210B2A459B1900A63465 /* Application.swift */; };
 		3AEECC4B2A6DFED7006A0E0C /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A1CF2F32A50E937000A8289 /* SidebarView.swift */; };
@@ -631,7 +630,6 @@
 			files = (
 				3A5F26C82A503D4A00C27EDF /* Library.framework in Frameworks */,
 				3AEECC352A6DFDAD006A0E0C /* MacLibrary.framework in Frameworks */,
-				3AEECC412A6DFE29006A0E0C /* MacLibrary.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1297,7 +1295,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1520;
 				TargetAttributes = {
 					3A096F852A4ED3DE00D4A2ED = {
 						CreatedOnToolsVersion = 15.0;
@@ -1824,7 +1822,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -1866,7 +1864,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -2422,8 +2420,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2472,8 +2469,7 @@
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2662,7 +2658,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2702,7 +2698,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;

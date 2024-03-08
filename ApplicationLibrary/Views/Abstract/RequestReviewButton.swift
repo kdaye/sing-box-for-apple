@@ -40,9 +40,10 @@
         }
 
         var body: some View {
-            Button(action: {
-                SKStoreReviewController.requestReview()
-            }, label: label)
+                Button(action: {
+                   
+                }, label: label)
+            
         }
     }
 
