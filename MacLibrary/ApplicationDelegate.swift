@@ -25,14 +25,18 @@ open class ApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificat
                 ],
                 intentIdentifiers: []
             ),
-        ]
-        )
+        ])
         notificationCenter.delegate = self
         let event = NSAppleEventManager.shared().currentAppleEvent
         let launchedAsLogInItem =
             event?.eventID == kAEOpenApplication &&
             event?.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
-        if SharedPreferences.inDebug || !launchedAsLogInItem || !SharedPreferences.showMenuBarExtra.getBlocking() || !SharedPreferences.menuBarExtraInBackground.getBlocking() {
+        let shouldShowWindow = Variant.screenshotMode ||
+            Variant.inDebug ||
+            !launchedAsLogInItem ||
+            !SharedPreferences.showMenuBarExtra.getBlocking() ||
+            !SharedPreferences.menuBarExtraInBackground.getBlocking()
+        if shouldShowWindow {
             NSApp.setActivationPolicy(.regular)
             NSApp.activate(ignoringOtherApps: true)
         } else {
@@ -63,8 +67,6 @@ open class ApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificat
             switch response.actionIdentifier {
             case "COPY_URL":
                 NSPasteboard.general.setString(url, forType: .URL)
-            case "OPEN_URL":
-                fallthrough
             default:
                 NSWorkspace.shared.open(URL(string: url)!)
             }
@@ -72,7 +74,7 @@ open class ApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificat
     }
 
     public func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
-        SharedPreferences.inDebug || !SharedPreferences.menuBarExtraInBackground.getBlocking()
+        Variant.inDebug || !SharedPreferences.menuBarExtraInBackground.getBlocking()
     }
 
     public func applicationShouldHandleReopen(_: NSApplication, hasVisibleWindows flag: Bool) -> Bool {

@@ -8,12 +8,12 @@ import SwiftUI
 #endif
 
 @MainActor
-public struct ProfileShareButton<Label>: View where Label: View {
-    private let alert: Binding<Alert?>
+public struct ProfileShareButton<Label: View>: View {
+    private let alert: Binding<AlertState?>
     private let profile: Profile
     private let label: () -> Label
 
-    public init(_ alert: Binding<Alert?>, _ profile: Profile, label: @escaping () -> Label) {
+    public init(_ alert: Binding<AlertState?>, _ profile: Profile, label: @escaping () -> Label) {
         self.alert = alert
         self.profile = profile
         self.label = label
@@ -35,22 +35,23 @@ public struct ProfileShareButton<Label>: View where Label: View {
 
     private var bodyCompat: some View {
         ShareButtonCompat(alert, label: label) {
-            try profile.toContent().generateShareFile()
+            try await profile.generateShareFileAsync()
         }
     }
 }
 
-public struct ShareButtonCompat<Label>: View where Label: View {
+public struct ShareButtonCompat<Label: View>: View {
     private let label: () -> Label
-    private let itemURL: () throws -> URL
+    private let itemURL: () async throws -> URL
 
-    @Binding private var alert: Alert?
+    @Binding private var alert: AlertState?
 
     #if os(macOS)
         @State private var sharePresented = false
+        @State private var shareItemURL: URL?
     #endif
 
-    public init(_ alert: Binding<Alert?>, @ViewBuilder label: @escaping () -> Label, itemURL: @escaping () throws -> URL) {
+    public init(_ alert: Binding<AlertState?>, @ViewBuilder label: @escaping () -> Label, itemURL: @escaping () async throws -> URL) {
         _alert = alert
         self.label = label
         self.itemURL = itemURL
@@ -58,38 +59,66 @@ public struct ShareButtonCompat<Label>: View where Label: View {
 
     public var body: some View {
         Button(action: shareItem, label: label)
+            .buttonStyle(.plain)
         #if os(macOS)
-            .background(SharingServicePicker($sharePresented, $alert, itemURL))
+            .background(SharingServicePicker($sharePresented, $alert, $shareItemURL))
         #endif
     }
 
     private func shareItem() {
         #if os(iOS)
             Task {
-                await shareItem0()
+                await shareItemAsync()
             }
         #elseif os(macOS)
-            sharePresented = true
+            Task {
+                await shareItemAsync()
+            }
         #endif
     }
 
     #if os(iOS)
-        private nonisolated func shareItem0() async {
+        private nonisolated func shareItemAsync() async {
             do {
                 let shareItem = try await itemURL()
                 await MainActor.run {
-                    shareItem1(shareItem)
+                    presentShareController(shareItem)
                 }
             } catch {
                 await MainActor.run {
-                    alert = Alert(error)
+                    alert = AlertState(action: "prepare share file", error: error)
                 }
             }
         }
 
-        private func shareItem1(_ item: URL) {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.keyWindow?.rootViewController?.present(UIActivityViewController(activityItems: [item], applicationActivities: nil), animated: true, completion: nil)
+        private func presentShareController(_ item: URL) {
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let rootViewController = windowScene.keyWindow?.rootViewController
+            else {
+                return
+            }
+            var topViewController = rootViewController
+            while let presented = topViewController.presentedViewController {
+                topViewController = presented
+            }
+            topViewController.present(
+                UIActivityViewController(activityItems: [item], applicationActivities: nil),
+                animated: true
+            )
+        }
+
+    #elseif os(macOS)
+        private nonisolated func shareItemAsync() async {
+            do {
+                let shareItem = try await itemURL()
+                await MainActor.run {
+                    shareItemURL = shareItem
+                    sharePresented = true
+                }
+            } catch {
+                await MainActor.run {
+                    alert = AlertState(action: "prepare share file", error: error)
+                }
             }
         }
     #endif
@@ -98,30 +127,30 @@ public struct ShareButtonCompat<Label>: View where Label: View {
 #if os(macOS)
     private struct SharingServicePicker: NSViewRepresentable {
         @Binding private var isPresented: Bool
-        @Binding private var alert: Alert?
-        private let item: () throws -> URL
+        @Binding private var alert: AlertState?
+        @Binding private var item: URL?
 
-        init(_ isPresented: Binding<Bool>, _ alert: Binding<Alert?>, _ item: @escaping () throws -> URL) {
+        init(_ isPresented: Binding<Bool>, _ alert: Binding<AlertState?>, _ item: Binding<URL?>) {
             _isPresented = isPresented
             _alert = alert
-            self.item = item
+            _item = item
         }
 
         func makeNSView(context _: Context) -> NSView {
-            let view = NSView()
-            return view
+            NSView()
         }
 
         func updateNSView(_ nsView: NSView, context: Context) {
             if isPresented {
-                do {
-                    let picker = try NSSharingServicePicker(items: [item()])
-                    picker.delegate = context.coordinator
-                    DispatchQueue.main.async {
-                        picker.show(relativeTo: .zero, of: nsView, preferredEdge: .minY)
-                    }
-                } catch {
-                    alert = Alert(error)
+                guard let item else {
+                    return
+                }
+                let picker = NSSharingServicePicker(items: [item])
+                picker.delegate = context.coordinator
+                picker.show(relativeTo: .zero, of: nsView, preferredEdge: .minY)
+                DispatchQueue.main.async {
+                    isPresented = false
+                    self.item = nil
                 }
             }
         }
