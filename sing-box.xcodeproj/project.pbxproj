@@ -1839,6 +1839,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = "$(inherited) -framework SystemConfiguration -lresolv";
 				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -1856,6 +1857,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = "$(inherited) -framework SystemConfiguration -lresolv";
 				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
