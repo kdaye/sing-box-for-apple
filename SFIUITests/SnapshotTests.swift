@@ -14,6 +14,12 @@ final class SnapshotTests: XCTestCase {
         snapshot("01_Dashboard")
     }
 
+    func testDashboardExposesNetworkControls() {
+        XCTAssertTrue(app.buttons["network.power"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.buttons["network.reportBug"].exists)
+        XCTAssertTrue(app.staticTexts["network.currentNode"].exists)
+    }
+
     func test02Logs() {
         if app.tabBars.buttons["Logs"].exists {
             app.tabBars.buttons["Logs"].firstMatch.tap()

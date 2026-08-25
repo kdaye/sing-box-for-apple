@@ -31,6 +31,7 @@ public struct OverviewView: View {
 
     public var body: some View {
         Group {
+        #if os(tvOS)
             if configuration.isLoading {
                 ProgressView()
             } else {
@@ -39,9 +40,20 @@ public struct OverviewView: View {
                         .padding()
                 }
             }
+        #else
+            NetworkDashboardPage(
+                profileList: $profileList,
+                selectedProfileID: $selectedProfileID,
+                profile: profile,
+                environments: environments,
+                coordinator: coordinator
+            )
+        #endif
         }
         .alert($coordinator.alert)
+        #if os(tvOS)
         .disabled(!Variant.screenshotMode && (!profile.status.isSwitchable || coordinator.reasserting))
+        #endif
     }
 
     @ViewBuilder
@@ -134,3 +146,251 @@ public struct OverviewView: View {
         }
     }
 }
+
+#if !os(tvOS)
+    @MainActor
+    private struct NetworkDashboardPage: View {
+        @Environment(\.accessibilityReduceMotion) private var reduceMotion
+        @Binding private var profileList: [ProfilePreview]
+        @Binding private var selectedProfileID: Int64
+        @ObservedObject private var profile: ExtensionProfile
+        @ObservedObject private var commandClient: CommandClient
+        @ObservedObject private var coordinator: OverviewViewModel
+
+        private let environments: ExtensionEnvironments
+
+        @State private var showsNodePicker = false
+        @State private var pendingSelections: [String: String] = [:]
+
+        init(
+            profileList: Binding<[ProfilePreview]>,
+            selectedProfileID: Binding<Int64>,
+            profile: ExtensionProfile,
+            environments: ExtensionEnvironments,
+            coordinator: OverviewViewModel
+        ) {
+            _profileList = profileList
+            _selectedProfileID = selectedProfileID
+            _profile = ObservedObject(wrappedValue: profile)
+            _commandClient = ObservedObject(wrappedValue: environments.commandClient)
+            _coordinator = ObservedObject(wrappedValue: coordinator)
+            self.environments = environments
+        }
+
+        private var groups: [OutboundGroup] {
+            NetworkNodePicker.presentationGroups(from: commandClient.groups)
+        }
+
+        private var primaryGroup: OutboundGroup? {
+            NetworkDashboardState.primaryGroup(in: groups)
+        }
+
+        private var selectedNode: String {
+            guard let group = primaryGroup else {
+                return String(localized: "当前配置自动选择")
+            }
+            return pendingSelections[group.tag] ?? group.selected
+        }
+
+        private var selectedGroupName: String? {
+            primaryGroup?.tag
+        }
+
+        private var selectedProfileName: String {
+            profileList.first(where: { $0.id == selectedProfileID })?.name ?? String(selectedProfileID)
+        }
+
+        private var version: String {
+            "\(Bundle.main.version) (\(Bundle.main.versionNumber))"
+        }
+
+        private var footerVersion: String {
+            "v\(Bundle.main.version)-build.\(Bundle.main.versionNumber)"
+        }
+
+        private var statusDescription: String {
+            switch profile.status {
+            case .invalid:
+                return "invalid"
+            case .disconnected:
+                return "disconnected"
+            case .connecting:
+                return "connecting"
+            case .connected:
+                return "connected"
+            case .reasserting:
+                return "reasserting"
+            case .disconnecting:
+                return "disconnecting"
+            @unknown default:
+                return "unknown"
+            }
+        }
+
+        var body: some View {
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 0) {
+                        header
+
+                        Spacer(minLength: 30)
+
+                        NetworkPowerControl(
+                            phase: coordinator.phase,
+                            status: commandClient.status
+                        ) {
+                            Task {
+                                await coordinator.toggleConnection(profile: profile, environments: environments)
+                            }
+                        }
+
+                        if coordinator.phase == .connected {
+                            nodeSelector
+                                .padding(.top, 24)
+                                .transition(reduceMotion ? .opacity : .opacity.combined(with: .move(edge: .bottom)))
+                        }
+
+                        Spacer(minLength: 36)
+
+                        reportButton
+
+                        Text(footerVersion)
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.38))
+                            .padding(.top, 20)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 18)
+                    .frame(width: min(max(geometry.size.width - 32, 0), NetworkDashboardStyle.contentMaxWidth))
+                    .frame(minHeight: max(geometry.size.height, 700))
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .background(NetworkDashboardStyle.background.ignoresSafeArea())
+            .environment(\.colorScheme, .light)
+            .onAppear {
+                coordinator.reconcilePhase(with: profile.status)
+            }
+            .onChangeCompat(of: profile.status) { status in
+                coordinator.reconcilePhase(with: status)
+            }
+            .onReceive(commandClient.$groups) { groups in
+                reconcilePendingSelections(with: NetworkNodePicker.presentationGroups(from: groups))
+            }
+            .sheet(isPresented: $showsNodePicker) {
+                NetworkNodePicker(
+                    groups: groups,
+                    pendingSelections: pendingSelections
+                ) { groupTag, outboundTag in
+                    pendingSelections[groupTag] = outboundTag
+                    coordinator.selectOutbound(groupTag: groupTag, outboundTag: outboundTag)
+                }
+            }
+            .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: coordinator.phase)
+        }
+
+        private var header: some View {
+            HStack(spacing: 9) {
+                Image(systemName: "shield.lefthalf.filled")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(NetworkDashboardStyle.connectedInk)
+
+                Text(String(localized: "网络工具"))
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundStyle(NetworkDashboardStyle.ink)
+
+                Spacer()
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityAddTraits(.isHeader)
+        }
+
+        private var nodeSelector: some View {
+            let canSelect = primaryGroup != nil
+
+            return HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(NetworkDashboardStyle.connected.opacity(0.22))
+                        .frame(width: 38, height: 38)
+                    Image(systemName: "server.rack")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(NetworkDashboardStyle.connectedInk)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(String(localized: "CURRENT NODE"))
+                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        .kerning(1.2)
+                        .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.48))
+
+                    Text(selectedNode)
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(NetworkDashboardStyle.ink)
+                        .lineLimit(1)
+                        .accessibilityIdentifier("network.currentNode")
+
+                    if let selectedGroupName {
+                        Text(selectedGroupName)
+                            .font(.caption)
+                            .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.5))
+                            .lineLimit(1)
+                    }
+                }
+
+                Spacer(minLength: 8)
+
+                Image(systemName: canSelect ? "chevron.right" : "lock.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.42))
+            }
+            .padding(.horizontal, 16)
+            .frame(minHeight: 74)
+            .background {
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .fill(.white.opacity(0.62))
+                    .shadow(color: .white.opacity(0.9), radius: 8, x: -5, y: -5)
+                    .shadow(color: NetworkDashboardStyle.ink.opacity(0.1), radius: 10, x: 6, y: 7)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                guard canSelect else { return }
+                showsNodePicker = true
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel(String(localized: "Current node"))
+            .accessibilityValue(selectedNode)
+            .accessibilityHint(canSelect ? String(localized: "Opens node selection") : "")
+            .accessibilityAddTraits(canSelect ? .isButton : [])
+        }
+
+        private var reportButton: some View {
+            Button {
+                coordinator.copyReport(
+                    logs: commandClient.logList,
+                    version: version,
+                    status: statusDescription,
+                    profile: selectedProfileName,
+                    group: selectedGroupName,
+                    node: primaryGroup == nil ? nil : selectedNode
+                )
+            } label: {
+                Label(String(localized: "REPORT BUG"), systemImage: "ladybug")
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(NetworkDashboardStyle.ink)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+            }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("network.reportBug")
+            .accessibilityLabel(String(localized: "Report Bug"))
+            .accessibilityHint(String(localized: "Copies diagnostic logs"))
+        }
+
+        private func reconcilePendingSelections(with groups: [OutboundGroup]) {
+            for group in groups where pendingSelections[group.tag] != nil {
+                pendingSelections[group.tag] = nil
+            }
+        }
+    }
+#endif
