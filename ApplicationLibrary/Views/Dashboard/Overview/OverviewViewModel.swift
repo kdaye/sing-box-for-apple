@@ -80,6 +80,24 @@ public final class OverviewViewModel: BaseViewModel {
     }
 
     func reconcilePhase(with status: NEVPNStatus) {
+        if phase == .connecting {
+            switch status {
+            case .invalid, .disconnected:
+                phase = .disconnected
+            case .disconnecting:
+                phase = .disconnecting
+            default:
+                break
+            }
+            return
+        }
+        if phase == .disconnecting {
+            if status == .invalid || status == .disconnected {
+                phase = .disconnected
+            }
+            return
+        }
+
         switch status {
         case .connecting, .reasserting:
             phase = .connecting
@@ -116,20 +134,7 @@ public final class OverviewViewModel: BaseViewModel {
             return
         }
 
-        reconcileAfterAction(with: profile.status)
-    }
-
-    private func reconcileAfterAction(with status: NEVPNStatus) {
-        guard phase == .disconnecting else {
-            reconcilePhase(with: status)
-            return
-        }
-        switch status {
-        case .disconnecting, .disconnected, .invalid:
-            reconcilePhase(with: status)
-        default:
-            break
-        }
+        reconcilePhase(with: profile.status)
     }
 
     func startRuleConnection() async {

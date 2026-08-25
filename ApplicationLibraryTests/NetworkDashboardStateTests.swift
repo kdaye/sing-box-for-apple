@@ -85,6 +85,49 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(events, ["start", "wait", "rule"])
     }
 
+    func testConnectedStatusDoesNotFinishConnectingBeforeRuleIsReady() async {
+        let profile = ExtensionProfile.mock
+        let originalStatus = profile.status
+        profile.status = .disconnected
+        defer { profile.status = originalStatus }
+        var startCount = 0
+        var stopCount = 0
+        var ruleCount = 0
+        var resumeReadiness: CheckedContinuation<Void, Never>?
+        let dependencies = OverviewViewModel.Dependencies(
+            start: {
+                startCount += 1
+                profile.status = .connected
+            },
+            stop: { stopCount += 1 },
+            waitUntilReady: {
+                await withCheckedContinuation { resumeReadiness = $0 }
+            },
+            setRuleMode: { ruleCount += 1 },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+        let environments = ExtensionEnvironments()
+
+        let firstAction = Task { await model.toggleConnection(profile: profile, environments: environments) }
+        while resumeReadiness == nil {
+            await Task.yield()
+        }
+        model.reconcilePhase(with: .connected)
+        await model.toggleConnection(profile: profile, environments: environments)
+
+        XCTAssertEqual(model.phase, .connecting)
+        XCTAssertEqual(startCount, 1)
+        XCTAssertEqual(stopCount, 0)
+        XCTAssertEqual(ruleCount, 0)
+
+        resumeReadiness?.resume()
+        await firstAction.value
+        XCTAssertEqual(model.phase, .connected)
+        XCTAssertEqual(ruleCount, 1)
+    }
+
     func testReadinessTimeoutStopsStartedServiceWithoutSettingRule() async {
         var events: [String] = []
         let dependencies = OverviewViewModel.Dependencies(
