@@ -155,6 +155,33 @@ final class NetworkDashboardStateTests: XCTestCase {
         )
     }
 
+    func testRuleCleanupKeepsPublicToggleDisconnectingUntilStatusChanges() async {
+        let profile = ExtensionProfile.mock
+        let originalStatus = profile.status
+        profile.status = .disconnected
+        defer { profile.status = originalStatus }
+        var stopCount = 0
+        let dependencies = OverviewViewModel.Dependencies(
+            start: { profile.status = .connected },
+            stop: { stopCount += 1 },
+            setRuleMode: { throw TestError() },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+        let environments = ExtensionEnvironments()
+
+        await model.toggleConnection(profile: profile, environments: environments)
+        await model.toggleConnection(profile: profile, environments: environments)
+
+        XCTAssertEqual(model.phase, .disconnecting)
+        XCTAssertEqual(stopCount, 1)
+
+        profile.status = .disconnected
+        model.reconcilePhase(with: profile.status)
+        XCTAssertEqual(model.phase, .disconnected)
+    }
+
     func testStartRejectsDuplicateActionWhileConnecting() async {
         var startCount = 0
         var resumeFirstStart: CheckedContinuation<Void, Never>?

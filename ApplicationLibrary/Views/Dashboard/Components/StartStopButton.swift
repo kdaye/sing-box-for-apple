@@ -110,6 +110,12 @@ public struct StartStopButton: View {
                         currentTime = Date()
                     }
                 }
+                .onChangeCompat(of: profile.status) { status in
+                    coordinator.reconcilePhase(with: status)
+                    if status == .disconnected {
+                        environments.commandClient.disconnect()
+                    }
+                }
         }
 
         private var runtimeDuration: String? {

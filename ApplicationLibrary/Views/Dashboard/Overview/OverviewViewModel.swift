@@ -116,7 +116,20 @@ public final class OverviewViewModel: BaseViewModel {
             return
         }
 
-        reconcilePhase(with: profile.status)
+        reconcileAfterAction(with: profile.status)
+    }
+
+    private func reconcileAfterAction(with status: NEVPNStatus) {
+        guard phase == .disconnecting else {
+            reconcilePhase(with: status)
+            return
+        }
+        switch status {
+        case .disconnecting, .disconnected, .invalid:
+            reconcilePhase(with: status)
+        default:
+            break
+        }
     }
 
     func startRuleConnection() async {
@@ -180,7 +193,6 @@ public final class OverviewViewModel: BaseViewModel {
         phase = .disconnecting
         do {
             try await dependencies.stop()
-            phase = .disconnected
         } catch {
             phase = .connected
             alert = AlertState(action: "stop service", error: error)
