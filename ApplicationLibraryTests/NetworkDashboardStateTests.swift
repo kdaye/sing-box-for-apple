@@ -128,6 +128,60 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(ruleCount, 1)
     }
 
+    func testDisconnectedStatusInvalidatesStartWaitingForReadiness() async {
+        var ruleCount = 0
+        var resumeReadiness: CheckedContinuation<Void, Never>?
+        let dependencies = OverviewViewModel.Dependencies(
+            start: {},
+            stop: {},
+            waitUntilReady: {
+                await withCheckedContinuation { resumeReadiness = $0 }
+            },
+            setRuleMode: { ruleCount += 1 },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        let startAction = Task { await model.startRuleConnection() }
+        while resumeReadiness == nil {
+            await Task.yield()
+        }
+        model.reconcilePhase(with: .disconnected)
+        resumeReadiness?.resume()
+        await startAction.value
+
+        XCTAssertEqual(ruleCount, 0)
+        XCTAssertEqual(model.phase, .disconnected)
+    }
+
+    func testInvalidStatusInvalidatesStartWaitingForReadiness() async {
+        var ruleCount = 0
+        var resumeReadiness: CheckedContinuation<Void, Never>?
+        let dependencies = OverviewViewModel.Dependencies(
+            start: {},
+            stop: {},
+            waitUntilReady: {
+                await withCheckedContinuation { resumeReadiness = $0 }
+            },
+            setRuleMode: { ruleCount += 1 },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        let startAction = Task { await model.startRuleConnection() }
+        while resumeReadiness == nil {
+            await Task.yield()
+        }
+        model.reconcilePhase(with: .invalid)
+        resumeReadiness?.resume()
+        await startAction.value
+
+        XCTAssertEqual(ruleCount, 0)
+        XCTAssertEqual(model.phase, .disconnected)
+    }
+
     func testReadinessTimeoutStopsStartedServiceWithoutSettingRule() async {
         var events: [String] = []
         let dependencies = OverviewViewModel.Dependencies(

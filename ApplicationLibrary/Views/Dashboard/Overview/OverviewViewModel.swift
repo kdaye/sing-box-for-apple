@@ -68,6 +68,7 @@ public final class OverviewViewModel: BaseViewModel {
     @Published var phase: NetworkDashboardPhase = .disconnected
 
     private let dependencies: Dependencies?
+    private var startAttemptGeneration: UInt = 0
 
     public override init() {
         dependencies = nil
@@ -83,8 +84,10 @@ public final class OverviewViewModel: BaseViewModel {
         if phase == .connecting {
             switch status {
             case .invalid, .disconnected:
+                invalidateStartAttempt()
                 phase = .disconnected
             case .disconnecting:
+                invalidateStartAttempt()
                 phase = .disconnecting
             default:
                 break
@@ -144,34 +147,50 @@ public final class OverviewViewModel: BaseViewModel {
 
     private func startRuleConnection(using dependencies: Dependencies) async {
         guard phase == .disconnected else { return }
+        startAttemptGeneration &+= 1
+        let attemptGeneration = startAttemptGeneration
         phase = .connecting
 
         do {
             try await dependencies.start()
         } catch {
+            guard isCurrentStartAttempt(attemptGeneration) else { return }
             phase = .disconnected
             alert = AlertState(action: "start service", error: error)
             return
         }
+        guard isCurrentStartAttempt(attemptGeneration) else { return }
 
         do {
             try await dependencies.waitUntilReady()
         } catch {
+            guard isCurrentStartAttempt(attemptGeneration) else { return }
             await cleanUpFailedStart(
                 error, action: "prepare Rule connection", failureLabel: "Rule connection preparation",
                 dependencies: dependencies
             )
             return
         }
+        guard isCurrentStartAttempt(attemptGeneration) else { return }
 
         do {
             try await dependencies.setRuleMode()
+            guard isCurrentStartAttempt(attemptGeneration) else { return }
             phase = .connected
         } catch {
+            guard isCurrentStartAttempt(attemptGeneration) else { return }
             await cleanUpFailedStart(
                 error, action: "set Rule mode", failureLabel: "Rule mode", dependencies: dependencies
             )
         }
+    }
+
+    private func invalidateStartAttempt() {
+        startAttemptGeneration &+= 1
+    }
+
+    private func isCurrentStartAttempt(_ generation: UInt) -> Bool {
+        generation == startAttemptGeneration && phase == .connecting
     }
 
     private func cleanUpFailedStart(
