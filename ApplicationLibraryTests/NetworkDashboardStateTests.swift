@@ -8,6 +8,18 @@ final class NetworkDashboardStateTests: XCTestCase {
         let errorDescription: String? = "Rule unavailable"
     }
 
+    private struct ReadinessError: LocalizedError {
+        let errorDescription: String? = "Rule readiness timed out"
+    }
+
+    private struct StopError: LocalizedError {
+        let errorDescription: String? = "Stop unavailable"
+    }
+
+    private struct ClipboardError: LocalizedError {
+        let errorDescription: String? = "Clipboard unavailable"
+    }
+
     func testTrafficTotalSaturatesInsteadOfOverflowing() {
         XCTAssertEqual(NetworkDashboardState.safeTrafficTotal(uplink: .max, downlink: 1), .max)
     }
@@ -46,6 +58,55 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(model.phase, .connected)
     }
 
+    func testStartWaitsForReadinessBeforeSettingRule() async {
+        var events: [String] = []
+        var resumeReadiness: CheckedContinuation<Void, Never>?
+        let dependencies = OverviewViewModel.Dependencies(
+            start: { events.append("start") },
+            stop: { events.append("stop") },
+            waitUntilReady: {
+                events.append("wait")
+                await withCheckedContinuation { resumeReadiness = $0 }
+            },
+            setRuleMode: { events.append("rule") },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        let startAction = Task { await model.startRuleConnection() }
+        while resumeReadiness == nil {
+            await Task.yield()
+        }
+        XCTAssertEqual(events, ["start", "wait"])
+        resumeReadiness?.resume()
+        await startAction.value
+
+        XCTAssertEqual(events, ["start", "wait", "rule"])
+    }
+
+    func testReadinessTimeoutStopsStartedServiceWithoutSettingRule() async {
+        var events: [String] = []
+        let dependencies = OverviewViewModel.Dependencies(
+            start: { events.append("start") },
+            stop: { events.append("stop") },
+            waitUntilReady: {
+                events.append("wait")
+                throw ReadinessError()
+            },
+            setRuleMode: { events.append("rule") },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        await model.startRuleConnection()
+
+        XCTAssertEqual(events, ["start", "wait", "stop"])
+        XCTAssertEqual(model.phase, .disconnecting)
+        XCTAssertEqual(model.alert?.message, "Failed to prepare Rule connection\nRule readiness timed out")
+    }
+
     func testRuleFailureStopsStartedServiceAndSurfacesError() async {
         var events: [String] = []
         let dependencies = OverviewViewModel.Dependencies(
@@ -63,8 +124,35 @@ final class NetworkDashboardStateTests: XCTestCase {
         await model.startRuleConnection()
 
         XCTAssertEqual(events, ["start", "rule", "stop"])
-        XCTAssertEqual(model.phase, .disconnected)
+        XCTAssertEqual(model.phase, .disconnecting)
         XCTAssertEqual(model.alert?.message, "Failed to set Rule mode\nRule unavailable")
+    }
+
+    func testCleanupStopFailureIsCombinedAndDoesNotClaimDisconnected() async {
+        var events: [String] = []
+        let dependencies = OverviewViewModel.Dependencies(
+            start: { events.append("start") },
+            stop: {
+                events.append("stop")
+                throw StopError()
+            },
+            setRuleMode: {
+                events.append("rule")
+                throw TestError()
+            },
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        await model.startRuleConnection()
+
+        XCTAssertEqual(events, ["start", "rule", "stop"])
+        XCTAssertEqual(model.phase, .disconnecting)
+        XCTAssertEqual(
+            model.alert?.message,
+            "Failed to set Rule mode and stop service\nRule mode failed: Rule unavailable\nStopping service also failed: Stop unavailable"
+        )
     }
 
     func testStartRejectsDuplicateActionWhileConnecting() async {
@@ -176,5 +264,21 @@ final class NetworkDashboardStateTests: XCTestCase {
             copied,
             "Version: 1.0 (2)\nStatus: disconnected\nProfile: work\nGroup: Unavailable\nNode: Unavailable"
         )
+    }
+
+    func testCopyReportSurfacesClipboardFailureWithoutSuccessAlert() {
+        let dependencies = OverviewViewModel.Dependencies(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in },
+            copy: { _ in throw ClipboardError() }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        model.copyReport(
+            logs: [LogEntry(level: 4, message: "first")],
+            version: "1.0 (2)", status: "connected", profile: "work", group: "proxy", node: "hk"
+        )
+
+        XCTAssertEqual(model.alert?.title, "Error")
+        XCTAssertEqual(model.alert?.message, "Failed to copy report\nClipboard unavailable")
     }
 }

@@ -14,43 +14,55 @@ public final class OverviewViewModel: BaseViewModel {
     public struct Dependencies {
         let start: @MainActor () async throws -> Void
         let stop: @MainActor () async throws -> Void
+        let waitUntilReady: @MainActor () async throws -> Void
         let setRuleMode: @MainActor () async throws -> Void
         let selectOutbound: @MainActor (_ groupTag: String, _ outboundTag: String) async throws -> Void
-        let copy: @MainActor (_ report: String) -> Void
+        let copy: @MainActor (_ report: String) throws -> Void
 
         public init(
             start: @escaping @MainActor () async throws -> Void,
             stop: @escaping @MainActor () async throws -> Void,
+            waitUntilReady: @escaping @MainActor () async throws -> Void = {},
             setRuleMode: @escaping @MainActor () async throws -> Void,
             selectOutbound: @escaping @MainActor (_ groupTag: String, _ outboundTag: String) async throws -> Void,
-            copy: @escaping @MainActor (_ report: String) -> Void
+            copy: @escaping @MainActor (_ report: String) throws -> Void
         ) {
             self.start = start
             self.stop = stop
+            self.waitUntilReady = waitUntilReady
             self.setRuleMode = setRuleMode
             self.selectOutbound = selectOutbound
             self.copy = copy
         }
 
-        public static func live(profile: ExtensionProfile) -> Dependencies {
+        public static func live(profile: ExtensionProfile, commandClient: CommandClient) -> Dependencies {
             Dependencies(
                 start: { try await profile.start() },
                 stop: { try await profile.stop() },
+                waitUntilReady: {
+                    try await OverviewViewModel.waitForRuleReadiness(
+                        profile: profile, commandClient: commandClient
+                    )
+                },
                 setRuleMode: { try LibboxNewStandaloneCommandClient()!.setClashMode("rule") },
                 selectOutbound: { groupTag, outboundTag in
                     try LibboxNewStandaloneCommandClient()!.selectOutbound(groupTag, outboundTag: outboundTag)
                 },
-                copy: { report in
-                    #if os(iOS)
-                        UIPasteboard.general.string = report
-                    #elseif os(macOS)
-                        NSPasteboard.general.clearContents()
-                        NSPasteboard.general.setString(report, forType: .string)
-                    #endif
-                }
+                copy: { try OverviewViewModel.writeToClipboard($0) }
             )
         }
     }
+
+    private struct ActionError: LocalizedError {
+        let errorDescription: String?
+
+        init(_ description: String) {
+            errorDescription = description
+        }
+    }
+
+    private static let readinessAttempts = 100
+    private static let readinessPollNanoseconds: UInt64 = 100_000_000
 
     @Published public var reasserting = false
     @Published var phase: NetworkDashboardPhase = .disconnected
@@ -85,7 +97,9 @@ public final class OverviewViewModel: BaseViewModel {
     public func toggleConnection(profile: ExtensionProfile, environments: ExtensionEnvironments) async {
         guard phase != .connecting, phase != .disconnecting else { return }
         reconcilePhase(with: profile.status)
-        let resolvedDependencies = dependencies ?? .live(profile: profile)
+        let resolvedDependencies = dependencies ?? .live(
+            profile: profile, commandClient: environments.commandClient
+        )
 
         switch phase {
         case .disconnected:
@@ -123,12 +137,41 @@ public final class OverviewViewModel: BaseViewModel {
         }
 
         do {
+            try await dependencies.waitUntilReady()
+        } catch {
+            await cleanUpFailedStart(
+                error, action: "prepare Rule connection", failureLabel: "Rule connection preparation",
+                dependencies: dependencies
+            )
+            return
+        }
+
+        do {
             try await dependencies.setRuleMode()
             phase = .connected
         } catch {
-            alert = AlertState(action: "set Rule mode", error: error)
-            try? await dependencies.stop()
-            phase = .disconnected
+            await cleanUpFailedStart(
+                error, action: "set Rule mode", failureLabel: "Rule mode", dependencies: dependencies
+            )
+        }
+    }
+
+    private func cleanUpFailedStart(
+        _ originalError: Error,
+        action: String,
+        failureLabel: String,
+        dependencies: Dependencies
+    ) async {
+        phase = .disconnecting
+        do {
+            try await dependencies.stop()
+            alert = AlertState(action: action, error: originalError)
+        } catch {
+            let combinedError = ActionError(
+                "\(failureLabel) failed: \(originalError.localizedDescription)\n" +
+                    "Stopping service also failed: \(error.localizedDescription)"
+            )
+            alert = AlertState(action: "\(action) and stop service", error: combinedError)
         }
     }
 
@@ -171,20 +214,64 @@ public final class OverviewViewModel: BaseViewModel {
             )
             : logs.map(\.message).joined(separator: "\n")
 
-        if let dependencies {
-            dependencies.copy(report)
-        } else {
-            #if os(iOS)
-                UIPasteboard.general.string = report
-            #elseif os(macOS)
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(report, forType: .string)
-            #endif
+        do {
+            if let dependencies {
+                try dependencies.copy(report)
+            } else {
+                try Self.writeToClipboard(report)
+            }
+            alert = AlertState(
+                title: String(localized: "Report Bug"),
+                message: String(localized: "日志已复制，请发送给 Jay。")
+            )
+        } catch {
+            alert = AlertState(action: "copy report", error: error)
         }
-        alert = AlertState(
-            title: String(localized: "Report Bug"),
-            message: String(localized: "日志已复制，请发送给 Jay。")
-        )
+    }
+
+    private static func waitForRuleReadiness(
+        profile: ExtensionProfile,
+        commandClient: CommandClient
+    ) async throws {
+        var observedStarting = false
+        for attempt in 0 ..< readinessAttempts {
+            try Task.checkCancellation()
+
+            switch profile.status {
+            case .connecting:
+                observedStarting = true
+            case .connected, .reasserting:
+                observedStarting = true
+                commandClient.connect()
+                if commandClient.isConnected {
+                    return
+                }
+            case .disconnected, .invalid:
+                if observedStarting {
+                    throw ActionError("Service disconnected before Rule mode was ready")
+                }
+            default:
+                break
+            }
+
+            if attempt + 1 < readinessAttempts {
+                try await Task.sleep(nanoseconds: readinessPollNanoseconds)
+            }
+        }
+        throw ActionError("Timed out waiting for the Rule command channel")
+    }
+
+    private static func writeToClipboard(_ report: String) throws {
+        #if os(iOS)
+            UIPasteboard.general.string = report
+        #elseif os(macOS)
+            NSPasteboard.general.clearContents()
+            guard NSPasteboard.general.setString(report, forType: .string) else {
+                throw ActionError("The clipboard rejected the report")
+            }
+        #else
+            throw ActionError("Clipboard writing is unavailable on this platform")
+        #endif
     }
 
     public func switchProfile(_ profileID: Int64, profile: ExtensionProfile, environments: ExtensionEnvironments) async {
