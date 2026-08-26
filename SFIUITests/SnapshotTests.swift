@@ -17,7 +17,9 @@ final class SnapshotTests: XCTestCase {
     func testDashboardExposesNetworkControls() {
         XCTAssertTrue(app.buttons["network.power"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["network.reportBug"].exists)
-        XCTAssertTrue(app.staticTexts["network.currentNode"].exists)
+        let currentNode = app.staticTexts["network.currentNode"]
+        XCTAssertTrue(currentNode.exists)
+        XCTAssertEqual(currentNode.label, "Tokyo")
     }
 
     func test02Logs() {

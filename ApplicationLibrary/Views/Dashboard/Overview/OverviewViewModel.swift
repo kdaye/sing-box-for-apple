@@ -35,16 +35,15 @@ public final class OverviewViewModel: BaseViewModel {
             self.copy = copy
         }
 
-        public static func live(profile: ExtensionProfile, commandClient: CommandClient) -> Dependencies {
-            Dependencies(
-                start: { try await profile.start() },
-                stop: { try await profile.stop() },
-                waitUntilReady: {
-                    try await OverviewViewModel.waitForRuleReadiness(
-                        profile: profile, commandClient: commandClient
-                    )
-                },
-                setRuleMode: { try LibboxNewStandaloneCommandClient()!.setClashMode("rule") },
+        @MainActor public static func live(profile: ExtensionProfile, commandClient: CommandClient) -> Dependencies {
+            let ruleDependencies = RuleConnectionTransaction.liveDependencies(
+                profile: profile, commandClient: commandClient
+            )
+            return Dependencies(
+                start: ruleDependencies.start,
+                stop: ruleDependencies.stop,
+                waitUntilReady: ruleDependencies.waitUntilReady,
+                setRuleMode: ruleDependencies.setRuleMode,
                 selectOutbound: { groupTag, outboundTag in
                     try LibboxNewStandaloneCommandClient()!.selectOutbound(groupTag, outboundTag: outboundTag)
                 },
@@ -61,14 +60,13 @@ public final class OverviewViewModel: BaseViewModel {
         }
     }
 
-    private static let readinessAttempts = 100
-    private static let readinessPollNanoseconds: UInt64 = 100_000_000
-
     @Published public var reasserting = false
     @Published var phase: NetworkDashboardPhase = .disconnected
+    @Published private(set) var pendingSelections: [String: String] = [:]
 
     private let dependencies: Dependencies?
     private var startAttemptGeneration: UInt = 0
+    private var activeStartAttemptGeneration: UInt?
 
     public override init() {
         dependencies = nil
@@ -81,7 +79,7 @@ public final class OverviewViewModel: BaseViewModel {
     }
 
     func reconcilePhase(with status: NEVPNStatus) {
-        if phase == .connecting {
+        if activeStartAttemptGeneration != nil {
             switch status {
             case .invalid, .disconnected:
                 invalidateStartAttempt()
@@ -89,6 +87,8 @@ public final class OverviewViewModel: BaseViewModel {
             case .disconnecting:
                 invalidateStartAttempt()
                 phase = .disconnecting
+            case .connecting, .reasserting:
+                phase = .connecting
             default:
                 break
             }
@@ -116,8 +116,9 @@ public final class OverviewViewModel: BaseViewModel {
     }
 
     public func toggleConnection(profile: ExtensionProfile, environments: ExtensionEnvironments) async {
-        guard phase != .connecting, phase != .disconnecting else { return }
+        guard activeStartAttemptGeneration == nil else { return }
         reconcilePhase(with: profile.status)
+        guard phase != .connecting, phase != .disconnecting else { return }
         let resolvedDependencies = dependencies ?? .live(
             profile: profile, commandClient: environments.commandClient
         )
@@ -149,67 +150,49 @@ public final class OverviewViewModel: BaseViewModel {
         guard phase == .disconnected else { return }
         startAttemptGeneration &+= 1
         let attemptGeneration = startAttemptGeneration
+        activeStartAttemptGeneration = attemptGeneration
         phase = .connecting
 
         do {
-            try await dependencies.start()
+            try await RuleConnectionTransaction.run(using: .init(
+                start: dependencies.start,
+                stop: dependencies.stop,
+                waitUntilReady: dependencies.waitUntilReady,
+                setRuleMode: dependencies.setRuleMode,
+                shouldContinue: { [weak self] in
+                    self?.isCurrentStartAttempt(attemptGeneration) == true
+                }
+            ))
+            guard isCurrentStartAttempt(attemptGeneration) else { return }
+            completeStartAttempt(attemptGeneration)
+            phase = .connected
+        } catch is CancellationError {
+            return
+        } catch let failure as RuleConnectionTransaction.Failure {
+            guard isCurrentStartAttempt(attemptGeneration) else { return }
+            completeStartAttempt(attemptGeneration)
+            phase = .disconnecting
+            alert = AlertState(action: failure.alertAction, error: failure)
         } catch {
             guard isCurrentStartAttempt(attemptGeneration) else { return }
+            completeStartAttempt(attemptGeneration)
             phase = .disconnected
             alert = AlertState(action: "start service", error: error)
-            return
-        }
-        guard isCurrentStartAttempt(attemptGeneration) else { return }
-
-        do {
-            try await dependencies.waitUntilReady()
-        } catch {
-            guard isCurrentStartAttempt(attemptGeneration) else { return }
-            await cleanUpFailedStart(
-                error, action: "prepare Rule connection", failureLabel: "Rule connection preparation",
-                dependencies: dependencies
-            )
-            return
-        }
-        guard isCurrentStartAttempt(attemptGeneration) else { return }
-
-        do {
-            try await dependencies.setRuleMode()
-            guard isCurrentStartAttempt(attemptGeneration) else { return }
-            phase = .connected
-        } catch {
-            guard isCurrentStartAttempt(attemptGeneration) else { return }
-            await cleanUpFailedStart(
-                error, action: "set Rule mode", failureLabel: "Rule mode", dependencies: dependencies
-            )
         }
     }
 
     private func invalidateStartAttempt() {
         startAttemptGeneration &+= 1
+        activeStartAttemptGeneration = nil
     }
 
     private func isCurrentStartAttempt(_ generation: UInt) -> Bool {
-        generation == startAttemptGeneration && phase == .connecting
+        generation == startAttemptGeneration && activeStartAttemptGeneration == generation
     }
 
-    private func cleanUpFailedStart(
-        _ originalError: Error,
-        action: String,
-        failureLabel: String,
-        dependencies: Dependencies
-    ) async {
-        phase = .disconnecting
-        do {
-            try await dependencies.stop()
-            alert = AlertState(action: action, error: originalError)
-        } catch {
-            let combinedError = ActionError(
-                "\(failureLabel) failed: \(originalError.localizedDescription)\n" +
-                    "Stopping service also failed: \(error.localizedDescription)"
-            )
-            alert = AlertState(action: "\(action) and stop service", error: combinedError)
-        }
+    private func completeStartAttempt(_ generation: UInt) {
+        guard activeStartAttemptGeneration == generation else { return }
+        activeStartAttemptGeneration = nil
     }
 
     private func stopConnection(using dependencies: Dependencies) async {
@@ -223,16 +206,28 @@ public final class OverviewViewModel: BaseViewModel {
         }
     }
 
-    public func selectOutbound(groupTag: String, outboundTag: String) {
+    public func selectOutbound(groupTag: String, outboundTag: String) async {
+        pendingSelections[groupTag] = outboundTag
         let selection = dependencies?.selectOutbound ?? { groupTag, outboundTag in
             try LibboxNewStandaloneCommandClient()!.selectOutbound(groupTag, outboundTag: outboundTag)
         }
-        Task { @MainActor [weak self] in
-            do {
-                try await selection(groupTag, outboundTag)
-            } catch {
-                self?.alert = AlertState(action: "select outbound", error: error)
+        do {
+            try await selection(groupTag, outboundTag)
+        } catch {
+            if pendingSelections[groupTag] == outboundTag {
+                pendingSelections[groupTag] = nil
             }
+            alert = AlertState(action: "select outbound", error: error)
+        }
+    }
+
+    func pendingSelection(for groupTag: String) -> String? {
+        pendingSelections[groupTag]
+    }
+
+    func reconcilePendingSelections(with groups: [OutboundGroup]) {
+        for group in groups where pendingSelections[group.tag] == group.selected {
+            pendingSelections[group.tag] = nil
         }
     }
 
@@ -263,38 +258,6 @@ public final class OverviewViewModel: BaseViewModel {
         } catch {
             alert = AlertState(action: "copy report", error: error)
         }
-    }
-
-    private static func waitForRuleReadiness(
-        profile: ExtensionProfile,
-        commandClient: CommandClient
-    ) async throws {
-        var observedStarting = false
-        for attempt in 0 ..< readinessAttempts {
-            try Task.checkCancellation()
-
-            switch profile.status {
-            case .connecting:
-                observedStarting = true
-            case .connected, .reasserting:
-                observedStarting = true
-                commandClient.connect()
-                if commandClient.isConnected {
-                    return
-                }
-            case .disconnected, .invalid:
-                if observedStarting {
-                    throw ActionError("Service disconnected before Rule mode was ready")
-                }
-            default:
-                break
-            }
-
-            if attempt + 1 < readinessAttempts {
-                try await Task.sleep(nanoseconds: readinessPollNanoseconds)
-            }
-        }
-        throw ActionError("Timed out waiting for the Rule command channel")
     }
 
     private static func writeToClipboard(_ report: String) throws {

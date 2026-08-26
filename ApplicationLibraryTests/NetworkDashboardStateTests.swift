@@ -38,12 +38,38 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(client.downlinkHistory, Array(repeating: 0, count: 30))
     }
 
+    func testDashboardMockDataIncludesASelectablePrimaryGroup() {
+        let client = CommandClient(.groups)
+        client.setupMockData()
+
+        let groups = NetworkNodePicker.presentationGroups(from: client.groups)
+
+        XCTAssertEqual(NetworkDashboardState.primaryGroup(in: groups)?.tag, "Auto")
+        XCTAssertEqual(NetworkDashboardState.selectedNode(in: groups), "Tokyo")
+    }
+
+    func testScreenshotDashboardFixtureIncludesSelectableNodes() {
+        let groups = NetworkDashboardState.screenshotGroups
+
+        XCTAssertEqual(NetworkDashboardState.primaryGroup(in: groups)?.items.map(\.tag), ["Tokyo", "Singapore", "Hong Kong"])
+        XCTAssertEqual(NetworkDashboardState.selectedNode(in: groups), "Tokyo")
+    }
+
     func testPrimaryGroupIsFirstSelectableGroup() {
         let groups = [
             OutboundGroup(tag: "auto", type: "urltest", selected: "a", selectable: false, isExpand: false, items: []),
             OutboundGroup(tag: "proxy", type: "selector", selected: "hk", selectable: true, isExpand: false, items: []),
         ]
         XCTAssertEqual(NetworkDashboardState.primaryGroup(in: groups)?.tag, "proxy")
+    }
+
+    func testSelectedNodeUsesAuthoritativeGroupSelection() {
+        let groups = [
+            OutboundGroup(tag: "auto", type: "urltest", selected: "a", selectable: false, isExpand: false, items: []),
+            OutboundGroup(tag: "proxy", type: "selector", selected: "us", selectable: true, isExpand: false, items: []),
+        ]
+
+        XCTAssertEqual(NetworkDashboardState.selectedNode(in: groups), "us")
     }
 
     func testDiagnosticsContainsProfileNodeAndStatus() {
@@ -70,6 +96,38 @@ final class NetworkDashboardStateTests: XCTestCase {
 
         XCTAssertEqual(events, ["start", "rule"])
         XCTAssertEqual(model.phase, .connected)
+    }
+
+    func testRuleStartTransactionWaitsForReadinessBeforeSettingRule() async throws {
+        var events: [String] = []
+
+        try await RuleConnectionTransaction.run(using: .init(
+            start: { events.append("start") },
+            stop: { events.append("stop") },
+            waitUntilReady: { events.append("ready") },
+            setRuleMode: { events.append("rule") }
+        ))
+
+        XCTAssertEqual(events, ["start", "ready", "rule"])
+    }
+
+    func testRuleStartTransactionStopsServiceWhenRuleSetupFails() async {
+        var events: [String] = []
+
+        do {
+            try await RuleConnectionTransaction.run(using: .init(
+                start: { events.append("start") },
+                stop: { events.append("stop") },
+                waitUntilReady: { events.append("ready") },
+                setRuleMode: {
+                    events.append("rule")
+                    throw TestError()
+                }
+            ))
+            XCTFail("Expected Rule setup to fail")
+        } catch {
+            XCTAssertEqual(events, ["start", "ready", "rule", "stop"])
+        }
     }
 
     func testStartWaitsForReadinessBeforeSettingRule() async {
@@ -140,6 +198,63 @@ final class NetworkDashboardStateTests: XCTestCase {
         await firstAction.value
         XCTAssertEqual(model.phase, .connected)
         XCTAssertEqual(ruleCount, 1)
+    }
+
+    func testExternalConnectingStatusReconcilesToConnected() {
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
+        ))
+
+        model.reconcilePhase(with: .connecting)
+        XCTAssertEqual(model.phase, .connecting)
+
+        model.reconcilePhase(with: .connected)
+
+        XCTAssertEqual(model.phase, .connected)
+    }
+
+    func testExternalReassertionReconcilesToConnected() {
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
+        ))
+
+        model.reconcilePhase(with: .reasserting)
+        XCTAssertEqual(model.phase, .connecting)
+
+        model.reconcilePhase(with: .connected)
+
+        XCTAssertEqual(model.phase, .connected)
+    }
+
+    func testSiblingCoordinatorReconcilesAnotherCoordinatorsStartToConnected() async {
+        var resumeReadiness: CheckedContinuation<Void, Never>?
+        let owner = OverviewViewModel(dependencies: .init(
+            start: {},
+            stop: {},
+            waitUntilReady: {
+                await withCheckedContinuation { resumeReadiness = $0 }
+            },
+            setRuleMode: {},
+            selectOutbound: { _, _ in },
+            copy: { _ in }
+        ))
+        let sibling = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
+        ))
+
+        let ownerStart = Task { await owner.startRuleConnection() }
+        while resumeReadiness == nil {
+            await Task.yield()
+        }
+
+        sibling.reconcilePhase(with: .connecting)
+        sibling.reconcilePhase(with: .connected)
+
+        XCTAssertEqual(owner.phase, .connecting)
+        XCTAssertEqual(sibling.phase, .connected)
+
+        resumeReadiness?.resume()
+        await ownerStart.value
     }
 
     func testDisconnectedStatusInvalidatesStartWaitingForReadiness() async {
@@ -363,11 +478,46 @@ final class NetworkDashboardStateTests: XCTestCase {
         )
         let model = OverviewViewModel(dependencies: dependencies)
 
-        model.selectOutbound(groupTag: "proxy", outboundTag: "hk")
+        await model.selectOutbound(groupTag: "proxy", outboundTag: "hk")
         await fulfillment(of: [forwarded], timeout: 1)
 
         XCTAssertEqual(selection?.group, "proxy")
         XCTAssertEqual(selection?.node, "hk")
+    }
+
+    func testPendingSelectionWaitsForAuthoritativeGroupConfirmation() async {
+        let dependencies = OverviewViewModel.Dependencies(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
+        )
+        let model = OverviewViewModel(dependencies: dependencies)
+
+        await model.selectOutbound(groupTag: "proxy", outboundTag: "hk")
+        XCTAssertEqual(model.pendingSelection(for: "proxy"), "hk")
+
+        model.reconcilePendingSelections(with: [
+            OutboundGroup(tag: "proxy", type: "selector", selected: "us", selectable: true, isExpand: false, items: []),
+        ])
+        XCTAssertEqual(model.pendingSelection(for: "proxy"), "hk")
+
+        model.reconcilePendingSelections(with: [
+            OutboundGroup(tag: "proxy", type: "selector", selected: "hk", selectable: true, isExpand: false, items: []),
+        ])
+        XCTAssertNil(model.pendingSelection(for: "proxy"))
+    }
+
+    func testFailedSelectionRollsBackPendingState() async {
+        let model = OverviewViewModel(dependencies: .init(
+            start: {},
+            stop: {},
+            setRuleMode: {},
+            selectOutbound: { _, _ in throw TestError() },
+            copy: { _ in }
+        ))
+
+        await model.selectOutbound(groupTag: "proxy", outboundTag: "hk")
+
+        XCTAssertNil(model.pendingSelection(for: "proxy"))
+        XCTAssertEqual(model.alert?.message, "Failed to select outbound\nRule unavailable")
     }
 
     func testCopyReportJoinsNonEmptyLogsWithNewlines() {

@@ -25,7 +25,7 @@ import SwiftUI
                         }
                     }
                 }
-                .navigationTitle(String(localized: "Select Node"))
+                .navigationTitle(String(localized: "当前服务器"))
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button(String(localized: "Done")) {
@@ -71,7 +71,7 @@ import SwiftUI
             }
             .buttonStyle(.plain)
             .accessibilityLabel("\(item.tag), \(item.displayType), \(item.delayString)")
-            .accessibilityValue(selected == item.tag ? String(localized: "Selected") : "")
+            .accessibilityValue(selected == item.tag ? item.tag : "")
         }
 
         static func presentationGroups(from groups: [LibboxOutboundGroup]?) -> [OutboundGroup] {

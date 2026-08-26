@@ -20,13 +20,13 @@ import SwiftUI
         private var stateLabel: String {
             switch phase {
             case .disconnected:
-                return String(localized: "DISCONNECTED")
+                return String(localized: "未连接")
             case .connecting:
-                return String(localized: "CONNECTING")
+                return String(localized: "连接中")
             case .connected:
-                return String(localized: "CONNECTED")
+                return String(localized: "已连接")
             case .disconnecting:
-                return String(localized: "DISCONNECTING")
+                return String(localized: "连接中")
             }
         }
 
@@ -131,11 +131,11 @@ import SwiftUI
             .disabled(isTransitioning)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("network.power")
-            .accessibilityLabel(String(localized: "Network power"))
+            .accessibilityLabel(String(localized: "网络工具"))
             .accessibilityValue(stateLabel)
             .accessibilityHint(isConnected
-                ? String(localized: "Stops the network service")
-                : String(localized: "Starts a Rule connection"))
+                ? String(localized: "Stop")
+                : String(localized: "Start"))
         }
 
         private var inactiveReadout: some View {
@@ -150,7 +150,7 @@ import SwiftUI
                 }
 
                 Text(stateLabel)
-                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .font(.caption.weight(.semibold))
                     .kerning(1.5)
             }
             .foregroundStyle(NetworkDashboardStyle.ink)
@@ -162,24 +162,24 @@ import SwiftUI
                     .font(.system(size: 25, weight: .bold))
 
                 Text(stateLabel)
-                    .font(.system(size: 9, weight: .bold, design: .monospaced))
+                    .font(.caption2.weight(.bold))
                     .kerning(1.3)
 
                 Text(trafficTotal)
-                    .font(.system(size: 22, weight: .bold, design: .monospaced))
+                    .font(.title2.weight(.bold))
                     .minimumScaleFactor(0.65)
                     .lineLimit(1)
                     .accessibilityIdentifier("network.trafficTotal")
-                    .accessibilityLabel(String(localized: "Total traffic"))
+                    .accessibilityLabel(String(localized: "累计流量"))
                     .accessibilityValue(trafficTotal)
 
-                Text(String(localized: "TOTAL TRAFFIC"))
-                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                Text(String(localized: "累计流量"))
+                    .font(.caption2.weight(.semibold))
                     .kerning(1.1)
 
                 HStack(spacing: 13) {
-                    trafficRate(symbol: "↑", value: uplink, label: String(localized: "Upload rate"), identifier: "network.uplink")
-                    trafficRate(symbol: "↓", value: downlink, label: String(localized: "Download rate"), identifier: "network.downlink")
+                    trafficRate(symbol: "↑", value: uplink, label: String(localized: "实时上行"), identifier: "network.uplink")
+                    trafficRate(symbol: "↓", value: downlink, label: String(localized: "实时下行"), identifier: "network.downlink")
                 }
                 .padding(.top, 2)
             }
@@ -190,9 +190,9 @@ import SwiftUI
         private func trafficRate(symbol: String, value: String, label: String, identifier: String) -> some View {
             VStack(spacing: 1) {
                 Text(symbol)
-                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                    .font(.caption.weight(.bold))
                 Text(value)
-                    .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                    .font(.caption2.weight(.semibold))
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
             }

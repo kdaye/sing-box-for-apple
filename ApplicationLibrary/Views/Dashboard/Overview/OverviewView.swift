@@ -131,18 +131,7 @@ public struct OverviewView: View {
             ClashModeCard()
                 .environmentObject(environments.commandClient)
         case .profile:
-            ProfileCard(
-                profileList: $profileList,
-                selectedProfileID: Binding(
-                    get: { selectedProfileID },
-                    set: { newID in
-                        coordinator.reasserting = true
-                        Task {
-                            await coordinator.switchProfile(newID, profile: profile, environments: environments)
-                        }
-                    }
-                )
-            )
+            EmptyView()
         }
     }
 }
@@ -160,7 +149,6 @@ public struct OverviewView: View {
         private let environments: ExtensionEnvironments
 
         @State private var showsNodePicker = false
-        @State private var pendingSelections: [String: String] = [:]
 
         init(
             profileList: Binding<[ProfilePreview]>,
@@ -178,7 +166,10 @@ public struct OverviewView: View {
         }
 
         private var groups: [OutboundGroup] {
-            NetworkNodePicker.presentationGroups(from: commandClient.groups)
+            if Variant.screenshotMode {
+                return NetworkDashboardState.screenshotGroups
+            }
+            return NetworkNodePicker.presentationGroups(from: commandClient.groups)
         }
 
         private var primaryGroup: OutboundGroup? {
@@ -186,10 +177,7 @@ public struct OverviewView: View {
         }
 
         private var selectedNode: String {
-            guard let group = primaryGroup else {
-                return String(localized: "当前配置自动选择")
-            }
-            return pendingSelections[group.tag] ?? group.selected
+            NetworkDashboardState.selectedNode(in: groups) ?? String(localized: "当前配置自动选择")
         }
 
         private var selectedGroupName: String? {
@@ -255,7 +243,7 @@ public struct OverviewView: View {
                         reportButton
 
                         Text(footerVersion)
-                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .font(.caption2.weight(.medium))
                             .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.38))
                             .padding(.top, 20)
                     }
@@ -275,15 +263,16 @@ public struct OverviewView: View {
                 coordinator.reconcilePhase(with: status)
             }
             .onReceive(commandClient.$groups) { groups in
-                reconcilePendingSelections(with: NetworkNodePicker.presentationGroups(from: groups))
+                coordinator.reconcilePendingSelections(with: NetworkNodePicker.presentationGroups(from: groups))
             }
             .sheet(isPresented: $showsNodePicker) {
                 NetworkNodePicker(
                     groups: groups,
-                    pendingSelections: pendingSelections
+                    pendingSelections: coordinator.pendingSelections
                 ) { groupTag, outboundTag in
-                    pendingSelections[groupTag] = outboundTag
-                    coordinator.selectOutbound(groupTag: groupTag, outboundTag: outboundTag)
+                    Task {
+                        await coordinator.selectOutbound(groupTag: groupTag, outboundTag: outboundTag)
+                    }
                 }
             }
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: coordinator.phase)
@@ -296,7 +285,7 @@ public struct OverviewView: View {
                     .foregroundStyle(NetworkDashboardStyle.connectedInk)
 
                 Text(String(localized: "网络工具"))
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .font(.title3.weight(.bold))
                     .foregroundStyle(NetworkDashboardStyle.ink)
 
                 Spacer()
@@ -322,13 +311,13 @@ public struct OverviewView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "CURRENT NODE"))
-                            .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        Text(String(localized: "当前服务器"))
+                            .font(.caption2.weight(.semibold))
                             .kerning(1.2)
                             .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.48))
 
                         Text(selectedNode)
-                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .font(.headline.weight(.semibold))
                             .foregroundStyle(NetworkDashboardStyle.ink)
                             .lineLimit(1)
                             .accessibilityIdentifier("network.currentNode")
@@ -360,9 +349,8 @@ public struct OverviewView: View {
             .buttonStyle(.plain)
             .disabled(!canSelect)
             .accessibilityElement(children: .contain)
-            .accessibilityLabel(String(localized: "Current node"))
+            .accessibilityLabel(String(localized: "当前服务器"))
             .accessibilityValue(selectedNode)
-            .accessibilityHint(canSelect ? String(localized: "Opens node selection") : "")
         }
 
         private var reportButton: some View {
@@ -376,8 +364,8 @@ public struct OverviewView: View {
                     node: primaryGroup == nil ? nil : selectedNode
                 )
             } label: {
-                Label(String(localized: "REPORT BUG"), systemImage: "ladybug")
-                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                Label(String(localized: "Report Bug"), systemImage: "ladybug")
+                    .font(.caption.weight(.semibold))
                     .foregroundStyle(NetworkDashboardStyle.ink)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
@@ -385,13 +373,6 @@ public struct OverviewView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("network.reportBug")
             .accessibilityLabel(String(localized: "Report Bug"))
-            .accessibilityHint(String(localized: "Copies diagnostic logs"))
-        }
-
-        private func reconcilePendingSelections(with groups: [OutboundGroup]) {
-            for group in groups where pendingSelections[group.tag] != nil {
-                pendingSelections[group.tag] = nil
-            }
         }
     }
 #endif

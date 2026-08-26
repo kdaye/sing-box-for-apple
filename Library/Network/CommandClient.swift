@@ -136,6 +136,13 @@ public class CommandClient: ObservableObject {
         isConnected = true
         clashModeList = ["rule", "global", "direct"]
         clashMode = "rule"
+        let group = LibboxOutboundGroup()
+        group.tag = "Auto"
+        group.type = "selector"
+        group.selectable = true
+        group.selected = "Tokyo"
+        group.isExpand = false
+        groups = [group]
         trafficSnapshot = TrafficSnapshot(
             status: status,
             uplinkHistory: Array(repeating: CGFloat(1000), count: 30),

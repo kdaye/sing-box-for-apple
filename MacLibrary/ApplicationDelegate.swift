@@ -48,7 +48,8 @@ open class ApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificat
                 if launchedAsLogInItem {
                     if await SharedPreferences.startedByUser.get() {
                         if let profile = try await ExtensionProfile.load() {
-                            try await profile.start()
+                            profile.register()
+                            try await RuleConnectionTransaction.run(profile: profile)
                         }
                     }
                 }

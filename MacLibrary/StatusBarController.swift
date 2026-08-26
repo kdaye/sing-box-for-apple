@@ -1051,7 +1051,8 @@ private class StatusBarHeaderView: NSView {
         Task {
             do {
                 if isOn {
-                    try await environments.extensionProfile?.start()
+                    guard let profile = environments.extensionProfile else { return }
+                    try await RuleConnectionTransaction.run(profile: profile)
                 } else {
                     try await environments.extensionProfile?.stop()
                 }
