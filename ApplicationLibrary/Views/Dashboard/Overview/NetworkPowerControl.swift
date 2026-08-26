@@ -7,6 +7,7 @@ import SwiftUI
 
         let phase: NetworkDashboardPhase
         let status: LibboxStatusMessage?
+        let preparationStatus: String?
         let action: () -> Void
 
         private var isConnected: Bool {
@@ -152,6 +153,14 @@ import SwiftUI
                 Text(stateLabel)
                     .font(.caption.weight(.semibold))
                     .kerning(1.5)
+
+                if isTransitioning {
+                    Text(preparationStatus ?? String(localized: "正在准备规则集"))
+                        .font(.caption2)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 12)
+                }
             }
             .foregroundStyle(NetworkDashboardStyle.ink)
         }

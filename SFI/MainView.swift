@@ -1,243 +1,70 @@
 import ApplicationLibrary
-import Libbox
 import Library
-import NetworkExtension
 import SwiftUI
 
 struct MainView: View {
-    @Environment(\.scenePhase) private var scenePhase
+    private static let configurationURL = "https://www.sanzhihema.com/sing.conf"
+
     @EnvironmentObject private var environments: ExtensionEnvironments
-
-    @State private var selection = NavigationPage.dashboard
-    @State private var importProfile: LibboxProfileContent?
-    @State private var importRemoteProfile: LibboxImportRemoteProfile?
-    @State private var alert: AlertState?
-    @State private var showGroups = false
-    @State private var showConnections = false
-    @State private var buttonState = ButtonVisibilityState()
-
-    private let profileEditor: (Binding<String>, Bool) -> AnyView = { text, isEditable in
-        AnyView(ProfileEditorWrapperView(text: text, isEditable: isEditable))
-    }
-
-    private var shouldShowBottomAccessory: Bool {
-        guard !environments.extensionProfileLoading else {
-            return false
-        }
-        guard !environments.emptyProfiles else {
-            return false
-        }
-        guard environments.extensionProfile != nil else {
-            return false
-        }
-        return true
-    }
-
-    @ViewBuilder
-    private var tabViewContent: some View {
-        if shouldShowBottomAccessory {
-            if #available(iOS 26.0, *), !Variant.debugNoIOS26 {
-                baseTabView
-                    .tabViewBottomAccessory {
-                        bottomAccessoryContent
-                    }
-            } else {
-                legacyTabView
-            }
-        } else {
-            baseTabView
-        }
-    }
+    @StateObject private var automaticProfile = NewProfileViewModel()
 
     var body: some View {
-        if Variant.screenshotMode {
-            mainBody.preferredColorScheme(.dark)
-        } else {
-            mainBody
+        NavigationStackCompat {
+            DashboardView()
         }
-    }
-
-    private var baseTabView: some View {
-        tabView(showsBottomAccessory: false)
-    }
-
-    private var legacyTabView: some View {
-        tabView(showsBottomAccessory: shouldShowBottomAccessory)
-    }
-
-    private func tabView(showsBottomAccessory: Bool) -> some View {
-        TabView(selection: $selection) {
-            ForEach(NavigationPage.allCases, id: \.self) { page in
-                NavigationStackCompat {
-                    tabContent(for: page, showsBottomAccessory: showsBottomAccessory)
-                }
-                .tag(page)
-                .tabItem { page.label }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func tabContent(for page: NavigationPage, showsBottomAccessory: Bool) -> some View {
-        if showsBottomAccessory {
-            let content = page.contentView
-                .navigationTitle(page.title)
-                .tabViewBottomAccessoryCompat(useSystemAccessory: false) {
-                    bottomAccessoryContent
-                }
-            if page == .logs {
-                tabBarBackgroundIfAvailable(
-                    content
-                        .navigationBarTitleDisplayMode(.inline)
-                )
-            } else {
-                tabBarBackgroundIfAvailable(content)
-            }
-        } else {
-            let content = page.contentView
-                .navigationTitle(page.title)
-            if page == .logs {
-                content
-                    .navigationBarTitleDisplayMode(.inline)
-            } else {
-                content
-            }
-        }
-    }
-
-    private func tabBarBackgroundIfAvailable(_ content: some View) -> some View {
-        content
-    }
-
-    private var bottomAccessoryContent: some View {
-        HStack(spacing: 12) {
-            if let profile = environments.extensionProfile {
-                StatusText(profile: profile)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            NavigationButtonsView(
-                showGroupsButton: buttonState.showGroupsButton,
-                showConnectionsButton: buttonState.showConnectionsButton,
-                groupsCount: buttonState.groupsCount,
-                connectionsCount: buttonState.connectionsCount,
-                onGroupsTap: { showGroups = true },
-                onConnectionsTap: { showConnections = true }
-            )
-            Divider()
-            StartStopButton(showsRuntimeDuration: true)
-        }
-        .padding(.horizontal)
-        .tint(.primary)
-    }
-
-    private var mainBody: some View {
-        Group {
-            tabViewContent
-                .onAppear {
-                    updateButtonVisibility()
-                }
-                .onReceive(environments.commandClient.$groups) { _ in
-                    Task { @MainActor in updateButtonVisibility() }
-                }
-                .onReceive(environments.commandClient.$connections) { _ in
-                    Task { @MainActor in updateButtonVisibility() }
-                }
-                .onReceive(environments.commandClient.$hasAnyConnection) { _ in
-                    Task { @MainActor in updateButtonVisibility() }
-                }
-                .onReceive(NotificationCenter.default.publisher(for: .NEVPNStatusDidChange)) { _ in
-                    Task { @MainActor in updateButtonVisibility() }
-                }
-                .onReceive(environments.$extensionProfile) { _ in
-                    Task { @MainActor in updateButtonVisibility() }
-                }
-                .onReceive(environments.$emptyProfiles) { _ in
-                    Task { @MainActor in updateButtonVisibility() }
-                }
-                .sheet(isPresented: $showGroups) {
-                    GroupsSheetContent()
-                }
-                .sheet(isPresented: $showConnections) {
-                    ConnectionsSheetContent()
-                }
-        }
+        .alert($automaticProfile.alert)
         .onAppear {
+            environments.ensureDefaultProfile = { [self] in await ensureConfiguration() }
             environments.postReload()
         }
-        .alert($alert)
-        .globalChecks()
-        .onChangeCompat(of: scenePhase) { newValue in
-            if newValue == .active {
+    }
+
+    /// Fetches/creates the bundled "Network Tools" subscription if it doesn't exist yet,
+    /// or re-sanitizes it if its content drifted. Called on demand from the Start button
+    /// (via `environments.ensureDefaultProfile`) rather than eagerly on launch, so a cold
+    /// start with no network access yet doesn't surface a spurious download failure before
+    /// the user has even installed the network extension.
+    private func ensureConfiguration() async {
+        do {
+            let profiles = try await ProfileManager.list()
+            if let profile = profiles.first(where: {
+                $0.type == .remote && $0.remoteURL == Self.configurationURL
+            }) {
+                let selectedProfileID = await SharedPreferences.selectedProfileID.get()
+                if !profiles.contains(where: { $0.id == selectedProfileID }) {
+                    await SharedPreferences.selectedProfileID.set(profile.mustID)
+                }
+                if !profile.autoUpdate || profile.autoUpdateInterval != 10 {
+                    profile.autoUpdate = true
+                    profile.autoUpdateInterval = 10
+                    try await ProfileManager.update(profile)
+                    try UIProfileUpdateTask.configure()
+                }
+                let storedContent = try await profile.readAsync()
+                let sanitizedContent = try AppRuntimeConfiguration.sanitizeRemote(storedContent)
+                if sanitizedContent != storedContent {
+                    try await profile.writeAsync(sanitizedContent)
+                    try await profile.onProfileUpdated()
+                }
+                await MainActor.run { environments.postReload() }
+                return
+            }
+            await MainActor.run {
+                automaticProfile.profileName = "Network Tools"
+                automaticProfile.profileType = .remote
+                automaticProfile.remotePath = Self.configurationURL
+                automaticProfile.autoUpdate = true
+                automaticProfile.autoUpdateInterval = 10
+            }
+            await automaticProfile.createProfile(
+                environments: environments,
+                onSuccess: { profile in
+                    await SharedPreferences.selectedProfileID.set(profile.mustID)
+                }
+            )
+            await MainActor.run {
                 environments.postReload()
             }
-        }
-        .onChangeCompat(of: selection) { newValue in
-            if newValue == .logs {
-                environments.connect()
-            }
-        }
-        .environment(\.selection, $selection)
-        .environment(\.importProfile, $importProfile)
-        .environment(\.importRemoteProfile, $importRemoteProfile)
-        .environment(\.profileEditor, profileEditor)
-        .handlesExternalEvents(preferring: [], allowing: ["*"])
-        .onOpenURL(perform: openURL)
-    }
-
-    private func updateButtonVisibility() {
-        buttonState.update(
-            profile: environments.extensionProfile,
-            commandClient: environments.commandClient
-        )
-    }
-
-    private struct StatusText: View {
-        @ObservedObject var profile: ExtensionProfile
-
-        var body: some View {
-            statusText
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .fixedSize()
-        }
-
-        private var statusText: Text {
-            switch profile.status {
-            case .disconnected:
-                return Text("Stopped")
-            case .connecting:
-                return Text("Starting")
-            case .connected:
-                return Text("Started")
-            case .reasserting:
-                return Text("Reasserting")
-            case .disconnecting:
-                return Text("Stopping")
-            default:
-                return Text("Unknown")
-                    .foregroundColor(.red)
-            }
-        }
-    }
-
-    private func openURL(url: URL) {
-        if url.host == "import-remote-profile" {
-            var error: NSError?
-            importRemoteProfile = LibboxParseRemoteProfileImportLink(url.absoluteString, &error)
-            if let error {
-                alert = AlertState(action: "parse remote profile import link", error: error)
-            }
-        } else if url.pathExtension == "bpf" {
-            do {
-                importProfile = try url.withSecurityScopedAccess {
-                    try .from(Data(contentsOf: url))
-                }
-            } catch {
-                alert = AlertState(action: "import profile from URL", error: error)
-            }
-        } else {
-            alert = AlertState(errorMessage: String(localized: "Handled unknown URL \(url.absoluteString)"))
-        }
+        } catch {}
     }
 }

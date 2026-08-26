@@ -63,6 +63,7 @@ public final class OverviewViewModel: BaseViewModel {
     @Published public var reasserting = false
     @Published var phase: NetworkDashboardPhase = .disconnected
     @Published private(set) var pendingSelections: [String: String] = [:]
+    @Published private(set) var lastConnectionError: String?
 
     private let dependencies: Dependencies?
     private var startAttemptGeneration: UInt = 0
@@ -152,6 +153,7 @@ public final class OverviewViewModel: BaseViewModel {
         let attemptGeneration = startAttemptGeneration
         activeStartAttemptGeneration = attemptGeneration
         phase = .connecting
+        lastConnectionError = nil
 
         do {
             try await RuleConnectionTransaction.run(using: .init(
@@ -172,11 +174,13 @@ public final class OverviewViewModel: BaseViewModel {
             guard isCurrentStartAttempt(attemptGeneration) else { return }
             completeStartAttempt(attemptGeneration)
             phase = .disconnecting
+            lastConnectionError = failure.localizedDescription
             alert = AlertState(action: failure.alertAction, error: failure)
         } catch {
             guard isCurrentStartAttempt(attemptGeneration) else { return }
             completeStartAttempt(attemptGeneration)
             phase = .disconnected
+            lastConnectionError = error.localizedDescription
             alert = AlertState(action: "start service", error: error)
         }
     }
@@ -239,11 +243,18 @@ public final class OverviewViewModel: BaseViewModel {
         group: String?,
         node: String?
     ) {
-        let report = logs.isEmpty
-            ? NetworkDashboardState.diagnostics(
-                version: version, status: status, profile: profile, group: group, node: node
-            )
+        let diagnostics = NetworkDashboardState.diagnostics(
+            version: version,
+            status: status,
+            profile: profile,
+            group: group,
+            node: node,
+            lastConnectionError: lastConnectionError
+        )
+        let runtimeLogs = logs.isEmpty
+            ? "No runtime logs captured."
             : logs.map(\.message).joined(separator: "\n")
+        let report = "\(diagnostics)\n\nLogs:\n\(runtimeLogs)"
 
         do {
             if let dependencies {

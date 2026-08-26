@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "071376B6-ECF2-4EA9-8ADA-28CD461FF9BD",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:sing-box.xcodeproj",
+      "identifier" : "3AEC20F22A459AB400A63465",
+      "name" : "SFI"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:sing-box.xcodeproj",
+        "identifier" : "3A6313712F0CEF3D0060A550",
+        "name" : "SFIUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

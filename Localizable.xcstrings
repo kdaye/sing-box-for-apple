@@ -104,6 +104,16 @@
       },
       "shouldTranslate" : false
     },
+    "%@, %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$@, %3$@"
+          }
+        }
+      }
+    },
     "%@/s" : {
       "localizations" : {
         "fa" : {
@@ -179,6 +189,7 @@
       }
     },
     "%lld%%" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -1091,6 +1102,9 @@
         }
       }
     },
+    "Beta Settings" : {
+
+    },
     "Browse" : {
       "localizations" : {
         "fa" : {
@@ -1176,6 +1190,7 @@
       }
     },
     "Camera" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -1204,6 +1219,7 @@
       }
     },
     "Camera access denied" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -1232,6 +1248,7 @@
       }
     },
     "Camera Access Denied" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -1260,6 +1277,7 @@
       }
     },
     "Camera is not available" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -2073,6 +2091,7 @@
       }
     },
     "Create Manually" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -2914,6 +2933,7 @@
       }
     },
     "Edit" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -3513,6 +3533,7 @@
       }
     },
     "Failed to decode QRS data" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -3793,6 +3814,7 @@
       }
     },
     "FPS" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -4363,6 +4385,16 @@
       },
       "shouldTranslate" : false
     },
+    "If you accidentally decline network access on first launch, go to Settings > Cellular (or this app's entry) to enable it manually." : {
+      "localizations" : {
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "如果第一次启动时不小心拒绝了网络权限，请前往「设置」->「蜂窝网络」（或该应用的设置项）中手动开启。"
+          }
+        }
+      }
+    },
     "Ignore" : {
       "localizations" : {
         "fa" : {
@@ -4448,6 +4480,7 @@
       }
     },
     "Import from File" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -4476,6 +4509,7 @@
       }
     },
     "Import from iPhone or iPad" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -4807,6 +4841,7 @@
       }
     },
     "Invalid QR code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -5949,6 +5984,7 @@
       }
     },
     "Open Settings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6005,6 +6041,7 @@
       }
     },
     "Others" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6202,6 +6239,7 @@
       }
     },
     "Please enable camera access in Settings to scan QR codes." : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6398,6 +6436,7 @@
       }
     },
     "Profiles" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6454,6 +6493,7 @@
       }
     },
     "QRS" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6724,6 +6764,7 @@
       }
     },
     "Report Bug" : {
+
     },
     "Required" : {
       "localizations" : {
@@ -6923,6 +6964,7 @@
       }
     },
     "Save Content JSON" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6951,6 +6993,7 @@
       }
     },
     "Save File" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -6979,6 +7022,7 @@
       }
     },
     "Scan QR Code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -7231,6 +7275,7 @@
       }
     },
     "Share as QRS Code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -7259,6 +7304,7 @@
       }
     },
     "Share Content JSON File" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -7287,6 +7333,7 @@
       }
     },
     "Share File" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -7343,6 +7390,7 @@
       }
     },
     "Share URL as QR Code" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -7422,6 +7470,7 @@
       "shouldTranslate" : false
     },
     "Slice Size" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -8033,6 +8082,7 @@
       }
     },
     "The QR code does not contain a valid profile import link." : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -8866,6 +8916,7 @@
       }
     },
     "What is QRS" : {
+      "extractionState" : "stale",
       "localizations" : {
         "fa" : {
           "stringUnit" : {
@@ -9062,24 +9113,58 @@
       }
     },
     "实时上行" : {
+
     },
     "实时下行" : {
+
     },
     "已连接" : {
+
     },
     "当前服务器" : {
+
     },
     "当前配置自动选择" : {
+
     },
     "日志已复制，请发送给 Jay。" : {
+
     },
     "未连接" : {
+
+    },
+    "正在下载配置" : {
+
+    },
+    "正在保存配置" : {
+
+    },
+    "正在准备规则集" : {
+
+    },
+    "正在校验配置" : {
+
+    },
+    "正在获取订阅配置…" : {
+
     },
     "累计流量" : {
+
     },
     "网络工具" : {
+
     },
     "连接中" : {
+
+    },
+    "配置下载失败" : {
+
+    },
+    "配置保存失败" : {
+
+    },
+    "配置校验失败" : {
+
     }
   },
   "version" : "1.0"

@@ -91,9 +91,19 @@ public struct DashboardView: View {
                 }
         } else {
             FormView {
-                InstallProfileButton {
-                    await environments.reload()
-                }
+                #if os(iOS)
+                    Section {
+                        InstallProfileButton {
+                            await environments.reload()
+                        }
+                    } footer: {
+                        Text("If you accidentally decline network access on first launch, go to Settings > Cellular (or this app's entry) to enable it manually.")
+                    }
+                #else
+                    InstallProfileButton {
+                        await environments.reload()
+                    }
+                #endif
             }
         }
     }

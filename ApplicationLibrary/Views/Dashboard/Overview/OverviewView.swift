@@ -149,6 +149,8 @@ public struct OverviewView: View {
         private let environments: ExtensionEnvironments
 
         @State private var showsNodePicker = false
+        @State private var preparationStatus: String?
+        @State private var isPreparingDefaultProfile = false
 
         init(
             profileList: Binding<[ProfilePreview]>,
@@ -225,10 +227,13 @@ public struct OverviewView: View {
 
                         NetworkPowerControl(
                             phase: coordinator.phase,
-                            status: commandClient.status
+                            status: commandClient.status,
+                            preparationStatus: isPreparingDefaultProfile
+                                ? String(localized: "正在获取订阅配置…")
+                                : preparationStatus
                         ) {
                             Task {
-                                await coordinator.toggleConnection(profile: profile, environments: environments)
+                                await startConnection()
                             }
                         }
 
@@ -265,6 +270,20 @@ public struct OverviewView: View {
             .onReceive(commandClient.$groups) { groups in
                 coordinator.reconcilePendingSelections(with: NetworkNodePicker.presentationGroups(from: groups))
             }
+            .task(id: coordinator.phase) {
+                guard coordinator.phase == .connecting else {
+                    preparationStatus = nil
+                    return
+                }
+                let logURL = FilePath.cacheDirectory.appendingPathComponent("stderr.log")
+                while !Task.isCancelled, coordinator.phase == .connecting {
+                    preparationStatus = await BlockingIO.run { () -> String? in
+                        guard let source = try? String(contentsOf: logURL, encoding: .utf8) else { return nil }
+                        return NetworkDashboardState.ruleSetPreparationStatus(fromLogText: source)
+                    }
+                    try? await Task.sleep(nanoseconds: 200_000_000)
+                }
+            }
             .sheet(isPresented: $showsNodePicker) {
                 NetworkNodePicker(
                     groups: groups,
@@ -276,6 +295,22 @@ public struct OverviewView: View {
                 }
             }
             .animation(reduceMotion ? nil : .easeInOut(duration: 0.25), value: coordinator.phase)
+        }
+
+        private func startConnection() async {
+            guard !isPreparingDefaultProfile else { return }
+            if !profile.status.isConnected, let ensureDefaultProfile = environments.ensureDefaultProfile {
+                // A variant (e.g. SFI) can install this hook to fetch/create its
+                // bundled subscription on demand. Run it unconditionally here too -
+                // not just when the profile list is empty - since a profile record
+                // can already exist locally while the persisted selection is still
+                // unset or stale; this hook is also what re-syncs that selection.
+                isPreparingDefaultProfile = true
+                await ensureDefaultProfile()
+                isPreparingDefaultProfile = false
+                guard !environments.emptyProfiles else { return }
+            }
+            await coordinator.toggleConnection(profile: profile, environments: environments)
         }
 
         private var header: some View {

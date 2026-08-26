@@ -19,6 +19,10 @@ public final class NewProfileViewModel: BaseViewModel {
     @Published public var autoUpdate = true
     @Published public var autoUpdateInterval: Int32 = 60
     @Published public var pickerPresented = false
+    @Published public private(set) var remotePreparationStatus = ""
+    @Published public private(set) var remoteDownloadProgress: Double?
+    @Published public private(set) var remoteDownloadedBytes: Int64 = 0
+    @Published public private(set) var remoteTotalBytes: Int64 = 0
 
     public let isImport: Bool
 
@@ -73,6 +77,13 @@ public final class NewProfileViewModel: BaseViewModel {
             createdProfile = try await createProfileBackground()
         } catch {
             alert = AlertState(action: "create profile", error: error)
+            if remotePreparationStatus == String(localized: "正在校验配置") {
+                remotePreparationStatus = String(localized: "配置校验失败")
+            } else if remotePreparationStatus == String(localized: "正在保存配置") {
+                remotePreparationStatus = String(localized: "配置保存失败")
+            } else {
+                remotePreparationStatus = String(localized: "配置下载失败")
+            }
             return
         }
 
@@ -139,13 +150,41 @@ public final class NewProfileViewModel: BaseViewModel {
             }
             savePath = remotePath
         } else if profileType == .remote {
-            let remoteContent = try await HTTPClient.getStringAsync(remotePath)
+            let temporaryURL = FilePath.cacheDirectory.appendingPathComponent("remote-profile-\(UUID().uuidString).tmp")
+            defer { try? FileManager.default.removeItem(at: temporaryURL) }
+            await MainActor.run {
+                remotePreparationStatus = String(localized: "正在下载配置")
+                remoteDownloadProgress = nil
+                remoteDownloadedBytes = 0
+                remoteTotalBytes = 0
+            }
+            try await HTTPClient.writeToAsync(remotePath, path: temporaryURL.path) { [weak self] transferred, total in
+                Task { @MainActor in
+                    self?.remoteDownloadedBytes = transferred
+                    self?.remoteTotalBytes = total
+                    self?.remoteDownloadProgress = NetworkDashboardState.downloadProgress(
+                        transferred: transferred,
+                        total: total
+                    )
+                }
+            }
+            let downloadedContent = try await BlockingIO.run {
+                try String(contentsOf: temporaryURL, encoding: .utf8)
+            }
+            await MainActor.run {
+                remotePreparationStatus = String(localized: "正在校验配置")
+                remoteDownloadProgress = 1
+            }
+            let remoteContent = try AppRuntimeConfiguration.sanitizeRemote(downloadedContent)
             try await BlockingIO.run {
                 var error: NSError?
                 LibboxCheckConfig(remoteContent, &error)
                 if let error {
                     throw error
                 }
+            }
+            await MainActor.run {
+                remotePreparationStatus = String(localized: "正在保存配置")
             }
             let profileConfigDirectory = FilePath.sharedDirectory.appendingPathComponent("configs", isDirectory: true)
             let profileConfig = profileConfigDirectory.appendingPathComponent("config_\(nextProfileID).json")

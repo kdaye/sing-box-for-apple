@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F1000000000000000000000B /* ApplicationLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */; };
 		3A017F922A4AB2E4009149FA /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 3A017F912A4AB2E4009149FA /* GRDB */; };
 		3A096F8F2A4ED3DE00D4A2ED /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A096F862A4ED3DE00D4A2ED /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3A2E87F22ED5A91100644195 /* Runestone in Frameworks */ = {isa = PBXBuildFile; productRef = 3A2E87F12ED5A91100644195 /* Runestone */; };
@@ -15,8 +14,6 @@
 		3A3AA7FC2A4EFDAE002F78AB /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
 		3A3AA7FF2A4EFDB3002F78AB /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
 		3A3DEBEB2A4FFE2D00373BF4 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3DEBE62A4FFA6000373BF4 /* AppIntents.framework */; };
-		3A4A020D2B53E3DC004EFB87 /* QRCode in Frameworks */ = {isa = PBXBuildFile; productRef = 3A4A020C2B53E3DC004EFB87 /* QRCode */; };
-		3A4CA8CC2F75381F009C36CA /* MarkdownUI in Frameworks */ = {isa = PBXBuildFile; productRef = 3A4CA8CB2F75381F009C36CA /* MarkdownUI */; };
 		3A4EAD1B2A4FEB02005435B3 /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
 		3A4EAD372A4FEC20005435B3 /* ApplicationLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */; };
 		3A4FB1572A73467F007012B9 /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
@@ -48,7 +45,7 @@
 		3AE595B02F08D00000C13426 /* HelperService/LaunchDaemons/io.nekohasekai.sfavt.helper.plist in Copy LaunchDaemon */ = {isa = PBXBuildFile; fileRef = 3AE595AE2F08D00000C13426 /* HelperService/LaunchDaemons/io.nekohasekai.sfavt.helper.plist */; };
 		3AEAEE992A4F16430059612D /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A096F862A4ED3DE00D4A2ED /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AEECBF22A6DF40A006A0E0C /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AF342B12A4AA520002B34AC /* NetworkExtension.framework */; };
-		3AEECC1A2A6DFA79006A0E0C /* io.nekohasekai.sfavt.system.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 3AEECBF12A6DF40A006A0E0C /* io.nekohasekai.sfavt.system.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		3AEECC1A2A6DFA79006A0E0C /* com.chanissue.sfa.system.systemextension in Embed System Extensions */ = {isa = PBXBuildFile; fileRef = 3AEECBF12A6DF40A006A0E0C /* com.chanissue.sfa.system.systemextension */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3AEECC1D2A6DFA79006A0E0C /* Library.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; };
 		3AEECC1E2A6DFA79006A0E0C /* Library.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEC211D2A459B4700A63465 /* Library.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3AEECC352A6DFDAD006A0E0C /* MacLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */; };
@@ -64,16 +61,10 @@
 		9C37F1822C131100001B9FA8 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 9C37F17C2C131100001B9FA8 /* Localizable.xcstrings */; };
 		9C37F1832C131100001B9FA8 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 9C37F17C2C131100001B9FA8 /* Localizable.xcstrings */; };
 		9C37F1842C131100001B9FA8 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 9C37F17C2C131100001B9FA8 /* Localizable.xcstrings */; };
+		F1000000000000000000000B /* ApplicationLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		F10000000000000000000006 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3AEC20BD2A45991900A63465 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3A4EAD0F2A4FEAE6005435B3;
-			remoteInfo = ApplicationLibrary;
-		};
 		3A096F7D2A4ED1AD00D4A2ED /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3AEC20BD2A45991900A63465 /* Project object */;
@@ -277,6 +268,13 @@
 			remoteGlobalIDString = 3A4EAD0F2A4FEAE6005435B3;
 			remoteInfo = ApplicationLibrary;
 		};
+		F10000000000000000000006 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AEC20BD2A45991900A63465 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A4EAD0F2A4FEAE6005435B3;
+			remoteInfo = ApplicationLibrary;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -429,7 +427,7 @@
 			dstPath = "$(SYSTEM_EXTENSIONS_FOLDER_PATH)";
 			dstSubfolderSpec = 16;
 			files = (
-				3AEECC1A2A6DFA79006A0E0C /* io.nekohasekai.sfavt.system.systemextension in Embed System Extensions */,
+				3AEECC1A2A6DFA79006A0E0C /* com.chanissue.sfa.system.systemextension in Embed System Extensions */,
 			);
 			name = "Embed System Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -437,7 +435,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		F10000000000000000000004 /* ApplicationLibraryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApplicationLibraryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A096F862A4ED3DE00D4A2ED /* Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A3DEBE12A4FFA1A00373BF4 /* ExtensionFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExtensionFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/ExtensionFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		3A3DEBE62A4FFA6000373BF4 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/AppIntents.framework; sourceTree = DEVELOPER_DIR; };
@@ -466,12 +463,14 @@
 		3AEC20F32A459AB400A63465 /* sing-box.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "sing-box.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AEC21092A459B1900A63465 /* sing-box.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "sing-box.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AEC211D2A459B4700A63465 /* Library.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Library.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		3AEECBF12A6DF40A006A0E0C /* io.nekohasekai.sfavt.system.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = io.nekohasekai.sfavt.system.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AEECBF12A6DF40A006A0E0C /* com.chanissue.sfa.system.systemextension */ = {isa = PBXFileReference; explicitFileType = "wrapper.system-extension"; includeInIndex = 0; path = com.chanissue.sfa.system.systemextension; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AEECC042A6DF9CA006A0E0C /* SFM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SFM.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MacLibrary.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AF342B12A4AA520002B34AC /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		3AF3A3D12B2207E1001FD7C1 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS17.0.sdk/usr/lib/libresolv.tbd; sourceTree = DEVELOPER_DIR; };
+		69302C21303F24B500748A25 /* SFI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SFI.xctestplan; sourceTree = "<group>"; };
 		9C37F17C2C131100001B9FA8 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		F10000000000000000000004 /* ApplicationLibraryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApplicationLibraryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -610,7 +609,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F10000000000000000000003 /* ApplicationLibraryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ApplicationLibraryTests; sourceTree = "<group>"; };
 		3A63135E2F0CEF190060A550 /* UITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = UITests; sourceTree = "<group>"; };
 		3A6313732F0CEF3D0060A550 /* SFIUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SFIUITests; sourceTree = "<group>"; };
 		3A6313952F0CEF740060A550 /* SFTUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SFTUITests; sourceTree = "<group>"; };
@@ -629,17 +627,10 @@
 		3ADDCFCD2E8B72B8009ACE1D /* TVExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (3ADDCFCF2E8B72B8009ACE1D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = TVExtension; sourceTree = "<group>"; };
 		3ADDCFD52E8B72BC009ACE1D /* WidgetExtension */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (3ADDCFDA2E8B72BC009ACE1D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = WidgetExtension; sourceTree = "<group>"; };
 		3AE595722F08C34000C13426 /* HelperService */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = HelperService; sourceTree = "<group>"; };
+		F10000000000000000000003 /* ApplicationLibraryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ApplicationLibraryTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		F10000000000000000000002 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F1000000000000000000000B /* ApplicationLibrary.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3A096F832A4ED3DE00D4A2ED /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -653,9 +644,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3A4CA8CC2F75381F009C36CA /* MarkdownUI in Frameworks */,
 				3A4EAD1B2A4FEB02005435B3 /* Library.framework in Frameworks */,
-				3A4A020D2B53E3DC004EFB87 /* QRCode in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,6 +782,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F10000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1000000000000000000000B /* ApplicationLibrary.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -808,6 +805,7 @@
 		3AEC20BC2A45991900A63465 = {
 			isa = PBXGroup;
 			children = (
+				69302C21303F24B500748A25 /* SFI.xctestplan */,
 				9C37F17C2C131100001B9FA8 /* Localizable.xcstrings */,
 				3AEC20DB2A4599D000A63465 /* Libbox.xcframework */,
 				3ADDCEB42E8B723B009ACE1D /* SFI */,
@@ -845,7 +843,7 @@
 				3A096F862A4ED3DE00D4A2ED /* Extension.appex */,
 				3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */,
 				F10000000000000000000004 /* ApplicationLibraryTests.xctest */,
-				3AEECBF12A6DF40A006A0E0C /* io.nekohasekai.sfavt.system.systemextension */,
+				3AEECBF12A6DF40A006A0E0C /* com.chanissue.sfa.system.systemextension */,
 				3AEECC042A6DF9CA006A0E0C /* SFM.app */,
 				3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */,
 				3AC03B962A72BF3300B7946F /* sing-box.app */,
@@ -907,28 +905,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		F10000000000000000000005 /* ApplicationLibraryTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F10000000000000000000008 /* Build configuration list for PBXNativeTarget "ApplicationLibraryTests" */;
-			buildPhases = (
-				F10000000000000000000001 /* Sources */,
-				F10000000000000000000002 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F10000000000000000000007 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				F10000000000000000000003 /* ApplicationLibraryTests */,
-			);
-			name = ApplicationLibraryTests;
-			packageProductDependencies = (
-			);
-			productName = ApplicationLibraryTests;
-			productReference = F10000000000000000000004 /* ApplicationLibraryTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		3A096F852A4ED3DE00D4A2ED /* Extension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3A096F902A4ED3DE00D4A2ED /* Build configuration list for PBXNativeTarget "Extension" */;
@@ -965,8 +941,6 @@
 			);
 			name = ApplicationLibrary;
 			packageProductDependencies = (
-				3A4A020C2B53E3DC004EFB87 /* QRCode */,
-				3A4CA8CB2F75381F009C36CA /* MarkdownUI */,
 			);
 			productName = ApplicationLibrary;
 			productReference = 3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */;
@@ -1268,7 +1242,7 @@
 			);
 			name = SystemExtension;
 			productName = SystemExtension;
-			productReference = 3AEECBF12A6DF40A006A0E0C /* io.nekohasekai.sfavt.system.systemextension */;
+			productReference = 3AEECBF12A6DF40A006A0E0C /* com.chanissue.sfa.system.systemextension */;
 			productType = "com.apple.product-type.system-extension";
 		};
 		3AEECC032A6DF9CA006A0E0C /* SFM.System */ = {
@@ -1322,6 +1296,28 @@
 			productName = MacLibrary;
 			productReference = 3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		F10000000000000000000005 /* ApplicationLibraryTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000008 /* Build configuration list for PBXNativeTarget "ApplicationLibraryTests" */;
+			buildPhases = (
+				F10000000000000000000001 /* Sources */,
+				F10000000000000000000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F10000000000000000000007 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F10000000000000000000003 /* ApplicationLibraryTests */,
+			);
+			name = ApplicationLibraryTests;
+			packageProductDependencies = (
+			);
+			productName = ApplicationLibraryTests;
+			productReference = F10000000000000000000004 /* ApplicationLibraryTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -1409,11 +1405,9 @@
 			packageReferences = (
 				3A7E90362A46778E00D53052 /* XCRemoteSwiftPackageReference "BinaryCodable" */,
 				3A017F902A4AB2E4009149FA /* XCRemoteSwiftPackageReference "GRDB" */,
-				3A4A020B2B53E3DC004EFB87 /* XCRemoteSwiftPackageReference "qrcode" */,
 				3A2E87F02ED5A91100644195 /* XCLocalSwiftPackageReference "Frameworks/Runestone" */,
 				3A2E87F92ED5ABCF00644195 /* XCLocalSwiftPackageReference "Frameworks/TreeSitterJSON5" */,
 				3ACE5E012EE1A91100644196 /* XCRemoteSwiftPackageReference "CodeEditSourceEditor" */,
-				3A4CA8CA2F75381F009C36CA /* XCRemoteSwiftPackageReference "swift-markdown-ui" */,
 			);
 			productRefGroup = 3AEC20C72A45991900A63465 /* Products */;
 			projectDirPath = "";
@@ -1550,13 +1544,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		F10000000000000000000001 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		3A096F822A4ED3DE00D4A2ED /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1676,14 +1663,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F10000000000000000000007 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 3A4EAD0F2A4FEAE6005435B3 /* ApplicationLibrary */;
-			targetProxy = F10000000000000000000006 /* PBXContainerItemProxy */;
-		};
 		3A096F7E2A4ED1AD00D4A2ED /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3AEC211C2A459B4700A63465 /* Library */;
@@ -1829,45 +1818,14 @@
 			target = 3A4EAD0F2A4FEAE6005435B3 /* ApplicationLibrary */;
 			targetProxy = 3AEECC472A6DFE61006A0E0C /* PBXContainerItemProxy */;
 		};
+		F10000000000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3A4EAD0F2A4FEAE6005435B3 /* ApplicationLibrary */;
+			targetProxy = F10000000000000000000006 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		F10000000000000000000009 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				OTHER_LDFLAGS = "$(inherited) -framework SystemConfiguration -lresolv";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = ApplicationLibrary;
-			};
-			name = Debug;
-		};
-		F1000000000000000000000A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				OTHER_LDFLAGS = "$(inherited) -framework SystemConfiguration -lresolv";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = ApplicationLibrary;
-			};
-			name = Release;
-		};
 		3A096F912A4ED3DE00D4A2ED /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1876,7 +1834,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Extension/Info.plist;
@@ -1892,7 +1850,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1916,7 +1874,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Extension/Info.plist;
@@ -1932,7 +1890,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -1973,7 +1931,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.application;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.application;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -2015,7 +1973,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.application;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.application;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -2035,11 +1993,11 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.SFIUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.SFIUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -2057,11 +2015,11 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.SFIUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.SFIUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -2080,10 +2038,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.SFTUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.SFTUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -2102,10 +2060,10 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.SFTUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.SFTUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = appletvos;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -2125,11 +2083,11 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.SFMUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.SFMUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -2146,11 +2104,11 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.2;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.SFMUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.SFMUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
@@ -2169,7 +2127,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IntentsExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = IntentsExtension;
@@ -2185,7 +2143,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.intents;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.intents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REEXPORTED_LIBRARY_PATHS = "";
@@ -2208,7 +2166,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = IntentsExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = IntentsExtension;
@@ -2224,7 +2182,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.intents;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.intents;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REEXPORTED_LIBRARY_PATHS = "";
@@ -2249,7 +2207,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FileProviderExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FileProviderExtension;
@@ -2261,7 +2219,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.fileprovider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.fileprovider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -2282,7 +2240,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FileProviderExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FileProviderExtension;
@@ -2294,7 +2252,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.fileprovider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.fileprovider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -2316,13 +2274,15 @@
 				CODE_SIGN_ENTITLEMENTS = SFT/SFT.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFT/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -2331,7 +2291,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.13.19;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa;
 				PRODUCT_NAME = "sing-box";
 				SDKROOT = appletvos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2350,13 +2310,15 @@
 				CODE_SIGN_ENTITLEMENTS = SFT/SFT.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFT/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIRequiredDeviceCapabilities = arm64;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -2365,7 +2327,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.13.19;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa;
 				PRODUCT_NAME = "sing-box";
 				SDKROOT = appletvos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2384,7 +2346,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TVExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TVExtension;
@@ -2397,7 +2359,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -2420,7 +2382,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TVExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TVExtension;
@@ -2433,7 +2395,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.extension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.extension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -2459,7 +2421,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WidgetExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WidgetExtension;
@@ -2471,7 +2433,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -2490,7 +2452,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = WidgetExtension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = WidgetExtension;
@@ -2502,7 +2464,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.widget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -2522,7 +2484,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
@@ -2539,6 +2501,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = "1.13.0-alpha.21";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_PACKAGE_IDENTIFIER).helper";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = com.chanissue.sfa.helper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
@@ -2563,7 +2526,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = YES;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
@@ -2580,6 +2543,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = "1.13.0-alpha.21";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(BASE_PACKAGE_IDENTIFIER).helper";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = com.chanissue.sfa.helper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = NO;
 				RUNTIME_EXCEPTION_ALLOW_JIT = NO;
@@ -2601,7 +2565,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_GROUP_IDENTIFIER = "group.$(BASE_PACKAGE_IDENTIFIER)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BASE_PACKAGE_IDENTIFIER = io.nekohasekai.sfavt;
+				BASE_PACKAGE_IDENTIFIER = com.chanissue.sfa;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2671,7 +2635,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_GROUP_IDENTIFIER = "group.$(BASE_PACKAGE_IDENTIFIER)";
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				BASE_PACKAGE_IDENTIFIER = io.nekohasekai.sfavt;
+				BASE_PACKAGE_IDENTIFIER = com.chanissue.sfa;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2738,14 +2702,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFI/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_CFBundleDisplayName = "网络工具";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -2759,7 +2724,7 @@
 				);
 				MARKETING_VERSION = 1.13.19;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa;
 				PRODUCT_NAME = "sing-box";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -2780,14 +2745,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFI/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_CFBundleDisplayName = "网络工具";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -2801,7 +2767,7 @@
 				);
 				MARKETING_VERSION = 1.13.19;
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa;
 				PRODUCT_NAME = "sing-box";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -2823,16 +2789,23 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 395;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFM/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to scan QR codes for importing profiles.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2841,7 +2814,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.13.19;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa;
 				PRODUCT_NAME = "sing-box";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REEXPORTED_LIBRARY_PATHS = "";
@@ -2862,16 +2835,23 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 395;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFM/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to scan QR codes for importing profiles.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2880,7 +2860,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.13.19;
 				OTHER_CODE_SIGN_FLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa;
 				PRODUCT_NAME = "sing-box";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REEXPORTED_LIBRARY_PATHS = "";
@@ -2901,7 +2881,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2920,7 +2900,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.library;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.library;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -2949,7 +2929,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2968,7 +2948,7 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
 				OTHER_CODE_SIGN_FLAGS = "--deep";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.library;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.library;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -2991,11 +2971,9 @@
 				APP_GROUP_IDENTIFIER = "$(TeamIdentifierPrefix)$(BASE_PACKAGE_IDENTIFIER)";
 				CODE_SIGN_ENTITLEMENTS = SystemExtension/SystemExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
@@ -3021,10 +2999,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.13.19;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.system;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.system;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC io nekohasekai sfavt system";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -3039,11 +3016,9 @@
 				APP_GROUP_IDENTIFIER = "$(TeamIdentifierPrefix)$(BASE_PACKAGE_IDENTIFIER)";
 				CODE_SIGN_ENTITLEMENTS = SystemExtension/SystemExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
@@ -3069,10 +3044,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.13.19;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.system;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.system;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC io nekohasekai sfavt system";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3090,21 +3064,26 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = SFM.System/SFM.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFM.System/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to scan QR codes for importing profiles.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3112,10 +3091,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.13.19;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.standalone;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.standalone;
 				PRODUCT_NAME = SFM;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC io nekohasekai sfavt standalone";
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3132,21 +3110,26 @@
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = SFM.System/SFM.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=macosx*]" = 287TTNZF8L;
+				DEVELOPMENT_TEAM = UVB3G64742;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SFM.System/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "sing-box";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is required to scan QR codes for importing profiles.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "As a universal proxy platform, sing-box configures routing according to your configuration.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "sing-box uses the Location permission to provide users with routing based on WIFI SSID and BSSID rules, without reading your location.";
 				INFOPLIST_KEY_UISupportsDocumentBrowser = NO;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3154,10 +3137,9 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.13.19;
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.standalone;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.standalone;
 				PRODUCT_NAME = SFM;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "XC io nekohasekai sfavt standalone";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -3192,7 +3174,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.macapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.macapp;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -3231,7 +3213,7 @@
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.macapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chanissue.sfa.macapp;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
@@ -3242,18 +3224,55 @@
 			};
 			name = Release;
 		};
+		F10000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					SystemConfiguration,
+					"-lresolv",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ApplicationLibrary;
+			};
+			name = Debug;
+		};
+		F1000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					SystemConfiguration,
+					"-lresolv",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ApplicationLibrary;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F10000000000000000000008 /* Build configuration list for PBXNativeTarget "ApplicationLibraryTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F10000000000000000000009 /* Debug */,
-				F1000000000000000000000A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		3A096F902A4ED3DE00D4A2ED /* Build configuration list for PBXNativeTarget "Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -3416,6 +3435,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F10000000000000000000008 /* Build configuration list for PBXNativeTarget "ApplicationLibraryTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000009 /* Debug */,
+				F1000000000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -3436,22 +3464,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 6.15.1;
-			};
-		};
-		3A4A020B2B53E3DC004EFB87 /* XCRemoteSwiftPackageReference "qrcode" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/dagronf/qrcode.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 17.0.0;
-			};
-		};
-		3A4CA8CA2F75381F009C36CA /* XCRemoteSwiftPackageReference "swift-markdown-ui" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/gonzalezreal/swift-markdown-ui";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.4.1;
 			};
 		};
 		3A7E90362A46778E00D53052 /* XCRemoteSwiftPackageReference "BinaryCodable" */ = {
@@ -3487,16 +3499,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 3A2E87F92ED5ABCF00644195 /* XCLocalSwiftPackageReference "Frameworks/TreeSitterJSON5" */;
 			productName = TreeSitterJSON5Runestone;
-		};
-		3A4A020C2B53E3DC004EFB87 /* QRCode */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3A4A020B2B53E3DC004EFB87 /* XCRemoteSwiftPackageReference "qrcode" */;
-			productName = QRCode;
-		};
-		3A4CA8CB2F75381F009C36CA /* MarkdownUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3A4CA8CA2F75381F009C36CA /* XCRemoteSwiftPackageReference "swift-markdown-ui" */;
-			productName = MarkdownUI;
 		};
 		3A7E90372A46778E00D53052 /* BinaryCodable */ = {
 			isa = XCSwiftPackageProductDependency;

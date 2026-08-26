@@ -2,7 +2,7 @@ import Foundation
 import Library
 
 public enum ProfileUpdateTask {
-    static let minUpdateInterval: TimeInterval = 15 * 60
+    static let minUpdateInterval: TimeInterval = 10 * 60
     static let defaultUpdateInterval: TimeInterval = 60 * 60
 
     private static var timer: Timer?

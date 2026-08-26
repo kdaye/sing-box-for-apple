@@ -74,8 +74,9 @@ public enum RuleConnectionTransaction {
         let errorDescription: String?
     }
 
-    private static let readinessAttempts = 100
+    public static let readinessTimeoutSeconds = 300
     private static let readinessPollNanoseconds: UInt64 = 100_000_000
+    private static let readinessAttempts = readinessTimeoutSeconds * Int(NSEC_PER_SEC / readinessPollNanoseconds)
 
     public static func run(using dependencies: Dependencies) async throws {
         try checkContinuation(using: dependencies)

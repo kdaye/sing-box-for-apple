@@ -5,6 +5,32 @@ import Library
 
 @MainActor
 final class NetworkDashboardStateTests: XCTestCase {
+    func testDownloadProgressUsesTransferredAndTotalBytes() {
+        XCTAssertEqual(NetworkDashboardState.downloadProgress(transferred: 3, total: 12), 0.25)
+        XCTAssertEqual(NetworkDashboardState.downloadProgress(transferred: 20, total: 12), 1)
+        XCTAssertNil(NetworkDashboardState.downloadProgress(transferred: 3, total: 0))
+    }
+
+    func testRuleSetPreparationStatusUsesLatestMatchingRuntimeLog() {
+        let logs = [
+            LogEntry(level: 4, message: "starting service"),
+            LogEntry(level: 4, message: "download rule-set geosite-cn"),
+            LogEntry(level: 4, message: "download rule-set geoip-cn"),
+        ]
+
+        XCTAssertEqual(
+            NetworkDashboardState.ruleSetPreparationStatus(from: logs),
+            "download rule-set geoip-cn"
+        )
+
+        XCTAssertEqual(
+            NetworkDashboardState.ruleSetPreparationStatus(
+                fromLogText: "starting service\ndownload rule_set geosite-cn\ndownload rule-set geoip-cn\n"
+            ),
+            "download rule-set geoip-cn"
+        )
+    }
+
     private struct TestError: LocalizedError {
         let errorDescription: String? = "Rule unavailable"
     }
@@ -79,6 +105,7 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertTrue(value.contains("Profile: work"))
         XCTAssertTrue(value.contains("Node: hk"))
         XCTAssertTrue(value.contains("Status: connected"))
+        XCTAssertTrue(value.contains("Last connection error: None"))
     }
 
     func testStartSetsRuleAfterServiceStarts() async {
@@ -109,6 +136,43 @@ final class NetworkDashboardStateTests: XCTestCase {
         ))
 
         XCTAssertEqual(events, ["start", "ready", "rule"])
+    }
+
+    func testRuleCommandChannelAllowsSlowRouterStartup() {
+        XCTAssertGreaterThanOrEqual(RuleConnectionTransaction.readinessTimeoutSeconds, 300)
+    }
+
+    func testRemoteConfigurationRemovesClashWebUIFieldsForAppRuntime() throws {
+        let source = """
+        {
+          "experimental": {
+            "clash_api": {
+              "external_controller": "127.0.0.1:9090",
+              "external_ui": "ui",
+              "external_ui_download_url": "https://example.com/ui.zip",
+              "external_ui_download_detour": "direct",
+              "secret": "shared-secret",
+              "default_mode": "rule"
+            },
+            "cache_file": { "enabled": true }
+          },
+          "route": { "final": "proxy" }
+        }
+        """
+
+        let sanitized = try AppRuntimeConfiguration.sanitizeRemote(source)
+        let root = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(sanitized.utf8)) as? [String: Any])
+        let experimental = try XCTUnwrap(root["experimental"] as? [String: Any])
+        let clashAPI = try XCTUnwrap(experimental["clash_api"] as? [String: Any])
+
+        XCTAssertEqual(clashAPI["default_mode"] as? String, "rule")
+        XCTAssertNil(clashAPI["external_controller"])
+        XCTAssertNil(clashAPI["external_ui"])
+        XCTAssertNil(clashAPI["external_ui_download_url"])
+        XCTAssertNil(clashAPI["external_ui_download_detour"])
+        XCTAssertNil(clashAPI["secret"])
+        XCTAssertEqual((experimental["cache_file"] as? [String: Any])?["enabled"] as? Bool, true)
+        XCTAssertEqual((root["route"] as? [String: Any])?["final"] as? String, "proxy")
     }
 
     func testRuleStartTransactionStopsServiceWhenRuleSetupFails() async {
@@ -520,7 +584,7 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(model.alert?.message, "Failed to select outbound\nRule unavailable")
     }
 
-    func testCopyReportJoinsNonEmptyLogsWithNewlines() {
+    func testCopyReportIncludesDiagnosticsBeforeNonEmptyLogs() {
         var copied = ""
         let dependencies = OverviewViewModel.Dependencies(
             start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { copied = $0 }
@@ -532,7 +596,11 @@ final class NetworkDashboardStateTests: XCTestCase {
             version: "1.0 (2)", status: "connected", profile: "work", group: "proxy", node: "hk"
         )
 
-        XCTAssertEqual(copied, "first\nsecond")
+        XCTAssertEqual(
+            copied,
+            "Version: 1.0 (2)\nStatus: connected\nProfile: work\nGroup: proxy\nNode: hk" +
+                "\nLast connection error: None\n\nLogs:\nfirst\nsecond"
+        )
         XCTAssertEqual(model.alert?.title, "Report Bug")
         XCTAssertEqual(model.alert?.message, "日志已复制，请发送给 Jay。")
     }
@@ -550,8 +618,24 @@ final class NetworkDashboardStateTests: XCTestCase {
 
         XCTAssertEqual(
             copied,
-            "Version: 1.0 (2)\nStatus: disconnected\nProfile: work\nGroup: Unavailable\nNode: Unavailable"
+            "Version: 1.0 (2)\nStatus: disconnected\nProfile: work\nGroup: Unavailable\nNode: Unavailable" +
+                "\nLast connection error: None\n\nLogs:\nNo runtime logs captured."
         )
+    }
+
+    func testCopyReportIncludesLastConnectionFailure() async {
+        var copied = ""
+        let model = OverviewViewModel(dependencies: .init(
+            start: { throw TestError() }, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in },
+            copy: { copied = $0 }
+        ))
+
+        await model.startRuleConnection()
+        model.copyReport(
+            logs: [], version: "1.0 (2)", status: "disconnected", profile: "work", group: nil, node: nil
+        )
+
+        XCTAssertTrue(copied.contains("Last connection error: Rule unavailable"))
     }
 
     func testCopyReportSurfacesClipboardFailureWithoutSuccessAlert() {

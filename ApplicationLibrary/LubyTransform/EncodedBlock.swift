@@ -1,7 +1,6 @@
 import Foundation
 
 struct EncodedBlock {
-    static let qrsURLPrefix = "https://qrss.netlify.app/#"
     var indices: [Int]
     var data: Data
     let k: Int
@@ -79,18 +78,6 @@ struct EncodedBlock {
 
     func toBase64() -> String {
         toBinary().base64EncodedString()
-    }
-
-    func toQRSString() -> String {
-        Self.qrsURLPrefix + toBase64()
-    }
-
-    static func fromQRSString(_ string: String) -> EncodedBlock? {
-        var content = string
-        if content.hasPrefix("http"), let hashIndex = content.firstIndex(of: "#") {
-            content = String(content[content.index(after: hashIndex)...])
-        }
-        return fromBase64(content)
     }
 
     static func fromBase64(_ string: String) -> EncodedBlock? {

@@ -2,7 +2,6 @@
 
     import AppKit
     import Library
-    import MarkdownUI
     import SwiftUI
 
     public struct UpdateSheet: View {
@@ -25,10 +24,8 @@
 
                 if let releaseNotes = updateManager.updateInfo?.releaseNotes, !releaseNotes.isEmpty {
                     ScrollView {
-                        Markdown(GitHubEmoji.replaceShortcodes(in: releaseNotes))
-                            .markdownTheme(.gitHub.text {
-                                FontSize(10)
-                            })
+                        Text(GitHubEmoji.replaceShortcodes(in: releaseNotes))
+                            .font(.system(size: 10))
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }

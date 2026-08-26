@@ -187,6 +187,13 @@ public class ExtensionEnvironments: ObservableObject {
     @Published public var emptyProfiles = false
     @Published public var pendingImportRemoteProfile: ImportRemoteProfileRequest?
 
+    /// Optional hook a variant can install to fetch/create a default profile on demand
+    /// (e.g. SFI's bundled subscription). When set, the Start button is allowed to be
+    /// tapped even while `emptyProfiles` is true; it calls this before starting, instead
+    /// of staying disabled until a profile happens to exist already. Left `nil` by
+    /// variants without such a concept, which keeps their existing disabled behavior.
+    public var ensureDefaultProfile: (() async -> Void)?
+
     public var logSearchText = ""
     public var connectionSearchText = ""
 

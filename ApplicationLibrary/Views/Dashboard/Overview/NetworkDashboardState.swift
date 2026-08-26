@@ -9,6 +9,27 @@ enum NetworkDashboardPhase: Equatable {
 }
 
 enum NetworkDashboardState {
+    static func downloadProgress(transferred: Int64, total: Int64) -> Double? {
+        guard total > 0 else { return nil }
+        return min(max(Double(transferred) / Double(total), 0), 1)
+    }
+
+    static func ruleSetPreparationStatus(from logs: [LogEntry]) -> String? {
+        logs.last(where: { log in
+            let message = log.message.lowercased()
+            return message.contains("rule-set") || message.contains("rule_set") ||
+                message.contains("rule set") || message.contains("ruleset")
+        })?.message
+    }
+
+    static func ruleSetPreparationStatus(fromLogText source: String) -> String? {
+        source.split(whereSeparator: \.isNewline).reversed().first(where: { line in
+            let message = line.lowercased()
+            return message.contains("rule-set") || message.contains("rule_set") ||
+                message.contains("rule set") || message.contains("ruleset")
+        }).map(String.init)
+    }
+
     static let screenshotGroups = [
         OutboundGroup(
             tag: "Auto",
@@ -46,8 +67,16 @@ enum NetworkDashboardState {
         primaryGroup(in: groups)?.selected
     }
 
-    static func diagnostics(version: String, status: String, profile: String, group: String?, node: String?) -> String {
+    static func diagnostics(
+        version: String,
+        status: String,
+        profile: String,
+        group: String?,
+        node: String?,
+        lastConnectionError: String? = nil
+    ) -> String {
         ["Version: \(version)", "Status: \(status)", "Profile: \(profile)",
-         "Group: \(group ?? "Unavailable")", "Node: \(node ?? "Unavailable")"].joined(separator: "\n")
+         "Group: \(group ?? "Unavailable")", "Node: \(node ?? "Unavailable")",
+         "Last connection error: \(lastConnectionError ?? "None")"].joined(separator: "\n")
     }
 }

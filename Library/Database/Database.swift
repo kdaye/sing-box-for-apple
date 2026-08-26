@@ -33,6 +33,11 @@ enum Database {
             migrator.registerMigration("fix_cellular_typo") { db in
                 try db.execute(sql: "UPDATE preferences SET name = 'exclude_cellular_services' WHERE name = 'exclude_celluar_services'")
             }
+            migrator.registerMigration("add_remote_etag") { db in
+                try db.alter(table: "profiles") { t in
+                    t.add(column: "remoteETag", .text)
+                }
+            }
             try migrator.migrate(database)
             return database
         } catch {

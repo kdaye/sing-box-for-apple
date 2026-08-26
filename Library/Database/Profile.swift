@@ -16,8 +16,9 @@ public class Profile: Record, Identifiable, ObservableObject {
     @Published public var autoUpdate: Bool
     @Published public var autoUpdateInterval: Int32
     public var lastUpdated: Date?
+    public var remoteETag: String?
 
-    public init(id: Int64? = nil, name: String, order: UInt32 = 0, type: ProfileType, path: String, remoteURL: String? = nil, autoUpdate: Bool = false, autoUpdateInterval: Int32 = 0, lastUpdated: Date? = nil) {
+    public init(id: Int64? = nil, name: String, order: UInt32 = 0, type: ProfileType, path: String, remoteURL: String? = nil, autoUpdate: Bool = false, autoUpdateInterval: Int32 = 0, lastUpdated: Date? = nil, remoteETag: String? = nil) {
         self.id = id
         self.name = name
         self.order = order
@@ -27,6 +28,7 @@ public class Profile: Record, Identifiable, ObservableObject {
         self.autoUpdate = autoUpdate
         self.autoUpdateInterval = autoUpdateInterval
         self.lastUpdated = lastUpdated
+        self.remoteETag = remoteETag
         super.init()
     }
 
@@ -35,7 +37,7 @@ public class Profile: Record, Identifiable, ObservableObject {
     }
 
     enum Columns: String, ColumnExpression {
-        case id, name, order, type, path, remoteURL, autoUpdate, autoUpdateInterval, lastUpdated, userAgent
+        case id, name, order, type, path, remoteURL, autoUpdate, autoUpdateInterval, lastUpdated, remoteETag, userAgent
     }
 
     required init(row: Row) throws {
@@ -48,6 +50,7 @@ public class Profile: Record, Identifiable, ObservableObject {
         autoUpdate = row[Columns.autoUpdate] ?? false
         autoUpdateInterval = row[Columns.autoUpdateInterval] ?? 0
         lastUpdated = row[Columns.lastUpdated] ?? Date()
+        remoteETag = row[Columns.remoteETag]
         try super.init(row: row)
     }
 
@@ -61,6 +64,7 @@ public class Profile: Record, Identifiable, ObservableObject {
         container[Columns.autoUpdate] = autoUpdate
         container[Columns.autoUpdateInterval] = autoUpdateInterval
         container[Columns.lastUpdated] = lastUpdated
+        container[Columns.remoteETag] = remoteETag
     }
 
     override public func didInsert(_ inserted: InsertionSuccess) {

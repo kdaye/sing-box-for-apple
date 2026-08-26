@@ -1,6 +1,11 @@
 import Foundation
 import Libbox
 
+public enum ConditionalHTTPResult: Equatable, Sendable {
+    case modified(content: String, etag: String?)
+    case notModified(etag: String?)
+}
+
 public class HTTPClient {
     private static var userAgent: String {
         var userAgent = Variant.applicationName
@@ -39,6 +44,39 @@ public class HTTPClient {
         try await BlockingIO.run {
             try HTTPClient().getString(url)
         }
+    }
+
+    public static func getStringConditionalAsync(_ url: String?, etag: String?) async throws -> ConditionalHTTPResult {
+        let request = try makeRequest(url: url, etag: etag)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let response = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        return try decodeConditionalResponse(data: data, response: response)
+    }
+
+    static func makeRequest(url: String?, etag: String?) throws -> URLRequest {
+        guard let url, let requestURL = URL(string: url) else {
+            throw URLError(.badURL)
+        }
+        var request = URLRequest(url: requestURL)
+        request.cachePolicy = .reloadIgnoringLocalCacheData
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        if let etag, !etag.isEmpty {
+            request.setValue(etag, forHTTPHeaderField: "If-None-Match")
+        }
+        return request
+    }
+
+    static func decodeConditionalResponse(data: Data, response: HTTPURLResponse) throws -> ConditionalHTTPResult {
+        let etag = response.value(forHTTPHeaderField: "ETag")
+        if response.statusCode == 304 {
+            return .notModified(etag: etag)
+        }
+        guard (200 ..< 300).contains(response.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+        return .modified(content: String(decoding: data, as: UTF8.self), etag: etag)
     }
 
     public func writeTo(_ url: String?, path: String, progress: ((Int64, Int64) -> Void)? = nil) throws {
