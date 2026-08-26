@@ -127,10 +127,24 @@ public class CommandClient: ObservableObject {
     }
 
     public func setupMockData() {
+        let status = LibboxStatusMessage()
+        status.trafficAvailable = true
+        status.uplink = 1000
+        status.downlink = 5000
+        status.uplinkTotal = 10_000_000
+        status.downlinkTotal = 50_000_000
         isConnected = true
         clashModeList = ["rule", "global", "direct"]
         clashMode = "rule"
+        let group = LibboxOutboundGroup()
+        group.tag = "Auto"
+        group.type = "selector"
+        group.selectable = true
+        group.selected = "Tokyo"
+        group.isExpand = false
+        groups = [group]
         trafficSnapshot = TrafficSnapshot(
+            status: status,
             uplinkHistory: Array(repeating: CGFloat(1000), count: 30),
             downlinkHistory: Array(repeating: CGFloat(5000), count: 30)
         )
@@ -146,8 +160,7 @@ public class CommandClient: ObservableObject {
             self.commandClient = nil
         }
         isConnecting = true
-        activeConnectionToken &+= 1
-        let token = activeConnectionToken
+        let token = advanceConnectionGeneration()
         connectTask = Task { [weak self] in
             await self?.performConnection(token: token)
         }
@@ -159,7 +172,7 @@ public class CommandClient: ObservableObject {
             self.connectTask = nil
         }
         isConnecting = false
-        activeConnectionToken &+= 1
+        advanceConnectionGeneration()
         if let commandClient {
             try? commandClient.disconnect()
             self.commandClient = nil
@@ -167,6 +180,13 @@ public class CommandClient: ObservableObject {
         if isConnected {
             isConnected = false
         }
+    }
+
+    @discardableResult
+    private func advanceConnectionGeneration() -> UInt64 {
+        activeConnectionToken &+= 1
+        trafficSnapshot = TrafficSnapshot()
+        return activeConnectionToken
     }
 
     private func flushPendingLogs() {

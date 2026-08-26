@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F1000000000000000000000B /* ApplicationLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */; };
 		3A017F922A4AB2E4009149FA /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 3A017F912A4AB2E4009149FA /* GRDB */; };
 		3A096F8F2A4ED3DE00D4A2ED /* Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 3A096F862A4ED3DE00D4A2ED /* Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		3A2E87F22ED5A91100644195 /* Runestone in Frameworks */ = {isa = PBXBuildFile; productRef = 3A2E87F12ED5A91100644195 /* Runestone */; };
@@ -66,6 +67,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		F10000000000000000000006 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AEC20BD2A45991900A63465 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3A4EAD0F2A4FEAE6005435B3;
+			remoteInfo = ApplicationLibrary;
+		};
 		3A096F7D2A4ED1AD00D4A2ED /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 3AEC20BD2A45991900A63465 /* Project object */;
@@ -429,6 +437,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F10000000000000000000004 /* ApplicationLibraryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ApplicationLibraryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A096F862A4ED3DE00D4A2ED /* Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Extension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A3DEBE12A4FFA1A00373BF4 /* ExtensionFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExtensionFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/ExtensionFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		3A3DEBE62A4FFA6000373BF4 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/AppIntents.framework; sourceTree = DEVELOPER_DIR; };
@@ -601,6 +610,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F10000000000000000000003 /* ApplicationLibraryTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = ApplicationLibraryTests; sourceTree = "<group>"; };
 		3A63135E2F0CEF190060A550 /* UITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = UITests; sourceTree = "<group>"; };
 		3A6313732F0CEF3D0060A550 /* SFIUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SFIUITests; sourceTree = "<group>"; };
 		3A6313952F0CEF740060A550 /* SFTUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = SFTUITests; sourceTree = "<group>"; };
@@ -622,6 +632,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F10000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F1000000000000000000000B /* ApplicationLibrary.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3A096F832A4ED3DE00D4A2ED /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -798,6 +816,7 @@
 				3ADDCED52E8B7264009ACE1D /* SFT */,
 				3ADDCEFE2E8B728C009ACE1D /* Library */,
 				3ADDCF5A2E8B7291009ACE1D /* ApplicationLibrary */,
+				F10000000000000000000003 /* ApplicationLibraryTests */,
 				3ADDCFA02E8B72A6009ACE1D /* MacLibrary */,
 				3ADDCFB72E8B72AB009ACE1D /* Extension */,
 				3ADDCFBE2E8B72B0009ACE1D /* SystemExtension */,
@@ -825,6 +844,7 @@
 				3A77016D2A4E6B34008F031F /* IntentsExtension.appex */,
 				3A096F862A4ED3DE00D4A2ED /* Extension.appex */,
 				3A4EAD102A4FEAE6005435B3 /* ApplicationLibrary.framework */,
+				F10000000000000000000004 /* ApplicationLibraryTests.xctest */,
 				3AEECBF12A6DF40A006A0E0C /* io.nekohasekai.sfavt.system.systemextension */,
 				3AEECC042A6DF9CA006A0E0C /* SFM.app */,
 				3AEECC2F2A6DFDAD006A0E0C /* MacLibrary.framework */,
@@ -887,6 +907,28 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		F10000000000000000000005 /* ApplicationLibraryTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F10000000000000000000008 /* Build configuration list for PBXNativeTarget "ApplicationLibraryTests" */;
+			buildPhases = (
+				F10000000000000000000001 /* Sources */,
+				F10000000000000000000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F10000000000000000000007 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F10000000000000000000003 /* ApplicationLibraryTests */,
+			);
+			name = ApplicationLibraryTests;
+			packageProductDependencies = (
+			);
+			productName = ApplicationLibraryTests;
+			productReference = F10000000000000000000004 /* ApplicationLibraryTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		3A096F852A4ED3DE00D4A2ED /* Extension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3A096F902A4ED3DE00D4A2ED /* Build configuration list for PBXNativeTarget "Extension" */;
@@ -1384,6 +1426,7 @@
 				3AC03B952A72BF3300B7946F /* SFT */,
 				3AEC211C2A459B4700A63465 /* Library */,
 				3A4EAD0F2A4FEAE6005435B3 /* ApplicationLibrary */,
+				F10000000000000000000005 /* ApplicationLibraryTests */,
 				3AEECC2E2A6DFDAD006A0E0C /* MacLibrary */,
 				3A096F852A4ED3DE00D4A2ED /* Extension */,
 				3AE171982A8128DD00393060 /* TVExtension */,
@@ -1507,6 +1550,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		3A096F822A4ED3DE00D4A2ED /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1629,6 +1679,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F10000000000000000000007 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3A4EAD0F2A4FEAE6005435B3 /* ApplicationLibrary */;
+			targetProxy = F10000000000000000000006 /* PBXContainerItemProxy */;
+		};
 		3A096F7E2A4ED1AD00D4A2ED /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 3AEC211C2A459B4700A63465 /* Library */;
@@ -1777,6 +1832,42 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		F10000000000000000000009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = "$(inherited) -framework SystemConfiguration -lresolv";
+				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ApplicationLibrary;
+			};
+			name = Debug;
+		};
+		F1000000000000000000000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				OTHER_LDFLAGS = "$(inherited) -framework SystemConfiguration -lresolv";
+				PRODUCT_BUNDLE_IDENTIFIER = io.nekohasekai.sfavt.ApplicationLibraryTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ApplicationLibrary;
+			};
+			name = Release;
+		};
 		3A096F912A4ED3DE00D4A2ED /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3154,6 +3245,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F10000000000000000000008 /* Build configuration list for PBXNativeTarget "ApplicationLibraryTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F10000000000000000000009 /* Debug */,
+				F1000000000000000000000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		3A096F902A4ED3DE00D4A2ED /* Build configuration list for PBXNativeTarget "Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

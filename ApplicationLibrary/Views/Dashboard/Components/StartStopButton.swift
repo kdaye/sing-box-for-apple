@@ -34,9 +34,8 @@ public struct StartStopButton: View {
     private struct ToggleConnectionButton: View {
         @EnvironmentObject private var environments: ExtensionEnvironments
         @EnvironmentObject private var profile: ExtensionProfile
-        @State private var alert: AlertState?
+        @StateObject private var coordinator = OverviewViewModel()
         @State private var currentTime = Date()
-        @State private var isStarting = false
         let showsRuntimeDuration: Bool
 
         private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -101,8 +100,10 @@ public struct StartStopButton: View {
             #if os(iOS)
                 .modifier(PrimaryTintModifier())
             #endif
-                .disabled(!profile.status.isEnabled)
-                .alert($alert)
+                .disabled(
+                    !profile.status.isEnabled || coordinator.phase == .connecting || coordinator.phase == .disconnecting
+                )
+                .alert($coordinator.alert)
                 .onReceive(timer) { _ in
                     guard !Variant.screenshotMode else { return }
                     Task { @MainActor in
@@ -110,18 +111,9 @@ public struct StartStopButton: View {
                     }
                 }
                 .onChangeCompat(of: profile.status) { status in
-                    Task { @MainActor in
-                        if isStarting {
-                            if status == .disconnected {
-                                isStarting = false
-                                if #available(iOS 16.0, macOS 13.0, tvOS 17.0, *) {
-                                    await checkStartupError()
-                                }
-                            } else if status.isConnectedStrict {
-                                isStarting = false
-                                environments.commandClient.connect()
-                            }
-                        }
+                    coordinator.reconcilePhase(with: status)
+                    if status == .disconnected {
+                        environments.commandClient.disconnect()
                     }
                 }
         }
@@ -147,27 +139,13 @@ public struct StartStopButton: View {
             }
         }
 
-        @available(iOS 16.0, macOS 13.0, tvOS 17.0, *)
-        private func checkStartupError() async {
-            if let alertState = await profile.checkLastDisconnectError() {
-                alert = alertState
-            }
-        }
-
-        private nonisolated func switchProfile(_ isEnabled: Bool) async {
-            do {
-                if isEnabled {
-                    await MainActor.run { isStarting = true }
-                    try await profile.start()
-                } else {
-                    try await profile.stop()
-                }
-            } catch {
-                await MainActor.run {
-                    isStarting = false
-                    let action = isEnabled ? "start service" : "stop service"
-                    alert = AlertState(action: action, error: error)
-                }
+        private func switchProfile(_ isEnabled: Bool) async {
+            await coordinator.toggleConnection(profile: profile, environments: environments)
+            if isEnabled, profile.status == .disconnected,
+               #available(iOS 16.0, macOS 13.0, tvOS 17.0, *),
+               let startupAlert = await profile.checkLastDisconnectError()
+            {
+                coordinator.alert = startupAlert
             }
         }
     }

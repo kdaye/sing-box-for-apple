@@ -9,8 +9,6 @@ public struct MainView: View {
     @Environment(\.controlActiveState) private var controlActiveState
     @EnvironmentObject private var environments: ExtensionEnvironments
     @StateObject private var viewModel: MainViewModel
-    @State private var showCardManagement = false
-    @State private var cardConfigurationVersion = 0
     @State private var settingsNavigationPath = NavigationPath()
     @State private var pendingSettingsPage: SettingsPage?
     @State private var didConfigureScreenshotWindow = false
@@ -61,7 +59,6 @@ public struct MainView: View {
                 viewModel.selection.contentView
                     .navigationTitle(viewModel.selection.title)
             }
-            .environment(\.cardConfigurationVersion, cardConfigurationVersion)
             .environment(\.settingsNavigationPath, $settingsNavigationPath)
             .navigationSplitViewColumnWidth(650)
         }
@@ -94,20 +91,6 @@ public struct MainView: View {
         .toolbar {
             ToolbarItem(placement: .navigation) {
                 StartStopButton()
-            }
-            if viewModel.selection == .dashboard {
-                ToolbarItem(placement: .automatic) {
-                    Menu {
-                        Button {
-                            showCardManagement = true
-                        } label: {
-                            Label("Dashboard Items", systemImage: "square.grid.2x2")
-                        }
-                    } label: {
-                        Label("Others", systemImage: "line.3.horizontal.circle")
-                    }
-                    .menuIndicator(.hidden)
-                }
             }
         }
         .onChangeCompat(of: controlActiveState) { newValue in
@@ -152,11 +135,5 @@ public struct MainView: View {
         .environment(\.profileEditor, profileEditor)
         .handlesExternalEvents(preferring: [], allowing: ["*"])
         .onOpenURL(perform: viewModel.openURL)
-        .sheet(isPresented: $showCardManagement, onDismiss: {
-            cardConfigurationVersion += 1
-        }, content: {
-            CardManagementSheet()
-                .frame(minWidth: 400, minHeight: 400)
-        })
     }
 }
