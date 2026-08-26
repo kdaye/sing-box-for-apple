@@ -308,60 +308,61 @@ public struct OverviewView: View {
         private var nodeSelector: some View {
             let canSelect = primaryGroup != nil
 
-            return HStack(spacing: 14) {
-                ZStack {
-                    Circle()
-                        .fill(NetworkDashboardStyle.connected.opacity(0.22))
-                        .frame(width: 38, height: 38)
-                    Image(systemName: "server.rack")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(NetworkDashboardStyle.connectedInk)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "CURRENT NODE"))
-                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                        .kerning(1.2)
-                        .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.48))
-
-                    Text(selectedNode)
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundStyle(NetworkDashboardStyle.ink)
-                        .lineLimit(1)
-                        .accessibilityIdentifier("network.currentNode")
-
-                    if let selectedGroupName {
-                        Text(selectedGroupName)
-                            .font(.caption)
-                            .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.5))
-                            .lineLimit(1)
-                    }
-                }
-
-                Spacer(minLength: 8)
-
-                Image(systemName: canSelect ? "chevron.right" : "lock.fill")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.42))
-            }
-            .padding(.horizontal, 16)
-            .frame(minHeight: 74)
-            .background {
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .fill(.white.opacity(0.62))
-                    .shadow(color: .white.opacity(0.9), radius: 8, x: -5, y: -5)
-                    .shadow(color: NetworkDashboardStyle.ink.opacity(0.1), radius: 10, x: 6, y: 7)
-            }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                guard canSelect else { return }
+            return Button {
                 showsNodePicker = true
+            } label: {
+                HStack(spacing: 14) {
+                    ZStack {
+                        Circle()
+                            .fill(NetworkDashboardStyle.connected.opacity(0.22))
+                            .frame(width: 38, height: 38)
+                        Image(systemName: "server.rack")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(NetworkDashboardStyle.connectedInk)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "CURRENT NODE"))
+                            .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                            .kerning(1.2)
+                            .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.48))
+
+                        Text(selectedNode)
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundStyle(NetworkDashboardStyle.ink)
+                            .lineLimit(1)
+                            .accessibilityIdentifier("network.currentNode")
+
+                        if let selectedGroupName {
+                            Text(selectedGroupName)
+                                .font(.caption)
+                                .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.5))
+                                .lineLimit(1)
+                        }
+                    }
+
+                    Spacer(minLength: 8)
+
+                    Image(systemName: canSelect ? "chevron.right" : "lock.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(NetworkDashboardStyle.ink.opacity(0.42))
+                }
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity, minHeight: 74)
+                .background {
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(.white.opacity(0.62))
+                        .shadow(color: .white.opacity(0.9), radius: 8, x: -5, y: -5)
+                        .shadow(color: NetworkDashboardStyle.ink.opacity(0.1), radius: 10, x: 6, y: 7)
+                }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .disabled(!canSelect)
             .accessibilityElement(children: .contain)
             .accessibilityLabel(String(localized: "Current node"))
             .accessibilityValue(selectedNode)
             .accessibilityHint(canSelect ? String(localized: "Opens node selection") : "")
-            .accessibilityAddTraits(canSelect ? .isButton : [])
         }
 
         private var reportButton: some View {

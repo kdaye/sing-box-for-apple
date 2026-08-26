@@ -129,6 +129,7 @@ import SwiftUI
             }
             .buttonStyle(.plain)
             .disabled(isTransitioning)
+            .accessibilityElement(children: .contain)
             .accessibilityIdentifier("network.power")
             .accessibilityLabel(String(localized: "Network power"))
             .accessibilityValue(stateLabel)
@@ -170,6 +171,7 @@ import SwiftUI
                     .lineLimit(1)
                     .accessibilityIdentifier("network.trafficTotal")
                     .accessibilityLabel(String(localized: "Total traffic"))
+                    .accessibilityValue(trafficTotal)
 
                 Text(String(localized: "TOTAL TRAFFIC"))
                     .font(.system(size: 8, weight: .semibold, design: .monospaced))

@@ -1,5 +1,6 @@
 import XCTest
 @testable import ApplicationLibrary
+import Libbox
 import Library
 
 @MainActor
@@ -22,6 +23,19 @@ final class NetworkDashboardStateTests: XCTestCase {
 
     func testTrafficTotalSaturatesInsteadOfOverflowing() {
         XCTAssertEqual(NetworkDashboardState.safeTrafficTotal(uplink: .max, downlink: 1), .max)
+    }
+
+    func testDisconnectClearsTrafficUntilNextConnectionStatus() {
+        let client = CommandClient(.status)
+        client.setupMockData()
+
+        XCTAssertNotNil(client.status)
+
+        client.disconnect()
+
+        XCTAssertNil(client.status)
+        XCTAssertEqual(client.uplinkHistory, Array(repeating: 0, count: 30))
+        XCTAssertEqual(client.downlinkHistory, Array(repeating: 0, count: 30))
     }
 
     func testPrimaryGroupIsFirstSelectableGroup() {
