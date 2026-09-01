@@ -23,6 +23,7 @@ public final class NewProfileViewModel: BaseViewModel {
     @Published public private(set) var remoteDownloadProgress: Double?
     @Published public private(set) var remoteDownloadedBytes: Int64 = 0
     @Published public private(set) var remoteTotalBytes: Int64 = 0
+    public private(set) var lastCreationError: Error?
 
     public let isImport: Bool
 
@@ -53,9 +54,11 @@ public final class NewProfileViewModel: BaseViewModel {
         environments: ExtensionEnvironments,
         dismiss: DismissAction? = nil,
         onSuccess: ((Profile) async -> Void)? = nil,
-        sendUpdateNotification: Bool = true
+        sendUpdateNotification: Bool = true,
+        presentsFailureAlert: Bool = true
     ) async {
         defer { isSaving = false }
+        lastCreationError = nil
 
         guard !profileName.isEmpty else {
             alert = AlertState(errorMessage: String(localized: "Missing profile name"))
@@ -76,7 +79,10 @@ public final class NewProfileViewModel: BaseViewModel {
         do {
             createdProfile = try await createProfileBackground()
         } catch {
-            alert = AlertState(action: "create profile", error: error)
+            lastCreationError = error
+            if presentsFailureAlert {
+                alert = AlertState(action: "create profile", error: error)
+            }
             if remotePreparationStatus == String(localized: "正在校验配置") {
                 remotePreparationStatus = String(localized: "配置校验失败")
             } else if remotePreparationStatus == String(localized: "正在保存配置") {
@@ -152,6 +158,7 @@ public final class NewProfileViewModel: BaseViewModel {
         } else if profileType == .remote {
             let temporaryURL = FilePath.cacheDirectory.appendingPathComponent("remote-profile-\(UUID().uuidString).tmp")
             defer { try? FileManager.default.removeItem(at: temporaryURL) }
+            ProfileUpdateDiagnostics.record(source: .initial, event: "remote configuration download started")
             await MainActor.run {
                 remotePreparationStatus = String(localized: "正在下载配置")
                 remoteDownloadProgress = nil
@@ -171,6 +178,10 @@ public final class NewProfileViewModel: BaseViewModel {
             let downloadedContent = try await BlockingIO.run {
                 try String(contentsOf: temporaryURL, encoding: .utf8)
             }
+            ProfileUpdateDiagnostics.record(
+                source: .initial,
+                event: "download succeeded (\(downloadedContent.utf8.count) bytes); validating"
+            )
             await MainActor.run {
                 remotePreparationStatus = String(localized: "正在校验配置")
                 remoteDownloadProgress = 1
@@ -183,6 +194,7 @@ public final class NewProfileViewModel: BaseViewModel {
                     throw error
                 }
             }
+            ProfileUpdateDiagnostics.record(source: .initial, event: "configuration validation succeeded; saving")
             await MainActor.run {
                 remotePreparationStatus = String(localized: "正在保存配置")
             }
@@ -192,6 +204,7 @@ public final class NewProfileViewModel: BaseViewModel {
                 try FileManager.default.createDirectory(at: profileConfigDirectory, withIntermediateDirectories: true)
                 try remoteContent.write(to: profileConfig, atomically: true, encoding: .utf8)
             }
+            ProfileUpdateDiagnostics.record(source: .initial, event: "configuration saved")
             savePath = profileConfig.relativePath
             remoteURL = remotePath
             lastUpdated = .now

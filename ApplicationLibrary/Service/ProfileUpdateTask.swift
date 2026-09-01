@@ -53,14 +53,20 @@ public enum ProfileUpdateTask {
         var success = true
         for profile in profiles {
             let profileName = profile.name
+            ProfileUpdateDiagnostics.record(source: .automatic, event: "update check triggered for \(profileName)")
             if profile.lastUpdated! > Date(timeIntervalSinceNow: -profile.autoUpdateIntervalOrDefault) {
+                ProfileUpdateDiagnostics.record(source: .automatic, event: "skipped \(profileName): interval not elapsed")
                 continue
             }
             do {
-                try await profile.updateRemoteProfile()
+                try await profile.updateRemoteProfile(mode: .automatic)
                 NSLog("Updated profile %@", profileName)
             } catch {
                 NSLog("Update profile %@ failed: %@", profileName, error.localizedDescription)
+                ProfileUpdateDiagnostics.record(
+                    source: .automatic,
+                    event: "update failed for \(profileName): \(error.localizedDescription)"
+                )
                 success = false
             }
         }

@@ -81,6 +81,20 @@ open class ExtensionProvider: NEPacketTunnelProvider {
     #endif
 
     override open func startTunnel(options startOptions: [String: NSObject]?) async throws {
+        ProfileUpdateDiagnostics.record(source: .extensionStartup, event: "startTunnel entered")
+        do {
+            try await startTunnelImplementation(options: startOptions)
+            ProfileUpdateDiagnostics.record(source: .extensionStartup, event: "libbox service started")
+        } catch {
+            ProfileUpdateDiagnostics.record(
+                source: .extensionStartup,
+                event: "startup failed: \(error.localizedDescription)"
+            )
+            throw error
+        }
+    }
+
+    private func startTunnelImplementation(options startOptions: [String: NSObject]?) async throws {
         let basePath: String
         let workingPath: String
         let tempPath: String

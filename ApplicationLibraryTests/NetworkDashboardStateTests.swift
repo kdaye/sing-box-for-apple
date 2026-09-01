@@ -5,6 +5,11 @@ import Library
 
 @MainActor
 final class NetworkDashboardStateTests: XCTestCase {
+    func testScreenshotModeRequiresExplicitFastlaneArgument() {
+        XCTAssertFalse(Variant.isScreenshotMode(arguments: ["SFI"]))
+        XCTAssertTrue(Variant.isScreenshotMode(arguments: ["SFI", "-FASTLANE_SNAPSHOT"]))
+    }
+
     func testDownloadProgressUsesTransferredAndTotalBytes() {
         XCTAssertEqual(NetworkDashboardState.downloadProgress(transferred: 3, total: 12), 0.25)
         XCTAssertEqual(NetworkDashboardState.downloadProgress(transferred: 20, total: 12), 1)
@@ -106,6 +111,65 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertTrue(value.contains("Node: hk"))
         XCTAssertTrue(value.contains("Status: connected"))
         XCTAssertTrue(value.contains("Last connection error: None"))
+        XCTAssertTrue(value.contains("Last connection stage: None"))
+    }
+
+    func testPreparationFailureSurfacesOriginalErrorAndStage() {
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
+        ))
+
+        model.beginConnectionPreparation()
+        model.failConnectionPreparation(TestError())
+
+        XCTAssertEqual(model.phase, .disconnected)
+        XCTAssertEqual(model.alert?.message, "Failed to prepare subscription\nRule unavailable")
+        XCTAssertEqual(model.lastConnectionStage, "Subscription preparation failed")
+    }
+
+    func testExtensionDisconnectFailureIsKeptForBugReport() {
+        var copied = ""
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { copied = $0 }
+        ))
+
+        model.surfaceDisconnectFailure(AlertState(errorMessage: "libbox: rule-set download: HTTP 403"))
+        XCTAssertEqual(model.alert?.message, "libbox: rule-set download: HTTP 403")
+        model.copyReport(
+            logs: [], version: "1.0 (2)", status: "disconnected", profile: "work", group: nil, node: nil
+        )
+
+        XCTAssertTrue(copied.contains("Last connection stage: Extension disconnected"))
+        XCTAssertTrue(copied.contains("Last connection error: libbox: rule-set download: HTTP 403"))
+    }
+
+    func testBugReportRedactsSecretsFromRuntimeLogsAndConnectionErrors() {
+        var copied = ""
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { copied = $0 }
+        ))
+        model.surfaceDisconnectFailure(AlertState(errorMessage: "failed https://example.com/a?secret=error-secret"))
+
+        model.copyReport(
+            logs: [LogEntry(level: 2, message: "GET https://example.com/b?token=runtime-secret")],
+            version: "1.0 (2)", status: "disconnected", profile: "work", group: nil, node: nil
+        )
+
+        XCTAssertFalse(copied.contains("error-secret"))
+        XCTAssertFalse(copied.contains("runtime-secret"))
+        XCTAssertTrue(copied.contains("secret=<redacted>"))
+        XCTAssertTrue(copied.contains("token=<redacted>"))
+    }
+
+    func testBugReportRedactsJSONBearerAndURLCredentials() {
+        let source = #"{"password":"json-secret"} Authorization: Bearer bearer-secret https://user:pass@example.com key=plain-secret"#
+
+        let sanitized = NetworkDashboardState.sanitizedDiagnosticText(source)
+
+        XCTAssertFalse(sanitized.contains("json-secret"))
+        XCTAssertFalse(sanitized.contains("bearer-secret"))
+        XCTAssertFalse(sanitized.contains("user:pass"))
+        XCTAssertFalse(sanitized.contains("plain-secret"))
     }
 
     func testStartSetsRuleAfterServiceStarts() async {
@@ -277,6 +341,18 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(model.phase, .connected)
     }
 
+    func testDisconnectImmediatelyAfterCompletedStartKeepsDiagnosticError() async {
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
+        ))
+
+        await model.startRuleConnection()
+        model.reconcilePhase(with: .disconnected)
+
+        XCTAssertEqual(model.lastConnectionStage, "Extension disconnected")
+        XCTAssertEqual(model.lastConnectionError, "Extension disconnected immediately after startup completed")
+    }
+
     func testExternalReassertionReconcilesToConnected() {
         let model = OverviewViewModel(dependencies: .init(
             start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { _ in }
@@ -346,6 +422,8 @@ final class NetworkDashboardStateTests: XCTestCase {
 
         XCTAssertEqual(ruleCount, 0)
         XCTAssertEqual(model.phase, .disconnected)
+        XCTAssertEqual(model.lastConnectionStage, "Extension disconnected")
+        XCTAssertEqual(model.lastConnectionError, "Extension became disconnected while waiting for rule command channel")
     }
 
     func testInvalidStatusInvalidatesStartWaitingForReadiness() async {
@@ -599,7 +677,10 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(
             copied,
             "Version: 1.0 (2)\nStatus: connected\nProfile: work\nGroup: proxy\nNode: hk" +
-                "\nLast connection error: None\n\nLogs:\nfirst\nsecond"
+                "\nLast connection stage: None\nLast connection error: None" +
+                "\n\nConnection timeline:\nNo connection attempt captured." +
+                "\n\nRuntime logs:\nfirst\nsecond\n\nService logs:\nNo service logs captured." +
+                "\n\nConfiguration and extension diagnostics:\nNo profile update logs captured."
         )
         XCTAssertEqual(model.alert?.title, "Report Bug")
         XCTAssertEqual(model.alert?.message, "日志已复制，请发送给 Jay。")
@@ -619,7 +700,10 @@ final class NetworkDashboardStateTests: XCTestCase {
         XCTAssertEqual(
             copied,
             "Version: 1.0 (2)\nStatus: disconnected\nProfile: work\nGroup: Unavailable\nNode: Unavailable" +
-                "\nLast connection error: None\n\nLogs:\nNo runtime logs captured."
+                "\nLast connection stage: None\nLast connection error: None" +
+                "\n\nConnection timeline:\nNo connection attempt captured." +
+                "\n\nRuntime logs:\nNo runtime logs captured.\n\nService logs:\nNo service logs captured." +
+                "\n\nConfiguration and extension diagnostics:\nNo profile update logs captured."
         )
     }
 
@@ -636,6 +720,70 @@ final class NetworkDashboardStateTests: XCTestCase {
         )
 
         XCTAssertTrue(copied.contains("Last connection error: Rule unavailable"))
+        XCTAssertTrue(copied.contains("Last connection stage: Starting extension"))
+    }
+
+    func testCopyReportIncludesSanitizedServiceLogTail() {
+        var copied = ""
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { copied = $0 }
+        ))
+
+        model.copyReport(
+            logs: [],
+            serviceLogs: "download rule-set https://example.com/rules.srs?token=private-token\nlibbox: EOF",
+            version: "1.0 (2)", status: "disconnected", profile: "work", group: nil, node: nil
+        )
+
+        XCTAssertTrue(copied.contains("Service logs:\ndownload rule-set https://example.com/rules.srs?token=<redacted>\nlibbox: EOF"))
+        XCTAssertFalse(copied.contains("private-token"))
+    }
+
+    func testCopyReportIncludesProfileUpdateDiagnostics() {
+        var copied = ""
+        let model = OverviewViewModel(dependencies: .init(
+            start: {}, stop: {}, setRuleMode: {}, selectOutbound: { _, _ in }, copy: { copied = $0 }
+        ))
+
+        model.copyReport(
+            logs: [],
+            profileUpdateLogs: "2026-08-31T10:00:00.000Z [automatic] not modified (HTTP 304)",
+            version: "1.0 (2)", status: "disconnected", profile: "work", group: nil, node: nil
+        )
+
+        XCTAssertTrue(copied.contains("Configuration and extension diagnostics:\n2026-08-31T10:00:00.000Z [automatic] not modified (HTTP 304)"))
+    }
+
+    func testServiceLogTailKeepsNewestBoundedLines() {
+        let source = (1 ... 205).map { "line \($0)" }.joined(separator: "\n")
+
+        let tail = NetworkDashboardState.serviceLogTail(from: source, maximumLines: 200)
+
+        XCTAssertFalse(tail.contains("line 1\n"))
+        XCTAssertTrue(tail.hasPrefix("line 6\n"))
+        XCTAssertTrue(tail.hasSuffix("line 205"))
+    }
+
+    func testServiceLogTailBoundsSingleLongLine() {
+        let source = String(repeating: "x", count: 70_000) + "END"
+
+        let tail = NetworkDashboardState.serviceLogTail(from: source)
+
+        XCTAssertLessThanOrEqual(tail.count, 65_536)
+        XCTAssertTrue(tail.hasSuffix("END"))
+    }
+
+    func testServiceLogFileReaderDoesNotLoadUnboundedPrefix() throws {
+        let fileURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        try (String(repeating: "old\n", count: 30_000) + "latest error").write(
+            to: fileURL, atomically: true, encoding: .utf8
+        )
+
+        let tail = try NetworkDashboardState.readServiceLogTail(at: fileURL)
+
+        XCTAssertLessThanOrEqual(tail.count, 65_536)
+        XCTAssertTrue(tail.hasSuffix("latest error"))
     }
 
     func testCopyReportSurfacesClipboardFailureWithoutSuccessAlert() {

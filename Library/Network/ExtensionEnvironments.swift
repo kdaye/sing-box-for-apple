@@ -192,7 +192,8 @@ public class ExtensionEnvironments: ObservableObject {
     /// tapped even while `emptyProfiles` is true; it calls this before starting, instead
     /// of staying disabled until a profile happens to exist already. Left `nil` by
     /// variants without such a concept, which keeps their existing disabled behavior.
-    public var ensureDefaultProfile: (() async -> Void)?
+    public var ensureDefaultProfile: (() async throws -> Void)?
+    public var refreshDefaultProfile: (() async throws -> Void)?
 
     public var logSearchText = ""
     public var connectionSearchText = ""

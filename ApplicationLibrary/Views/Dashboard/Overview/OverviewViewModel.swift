@@ -64,10 +64,13 @@ public final class OverviewViewModel: BaseViewModel {
     @Published var phase: NetworkDashboardPhase = .disconnected
     @Published private(set) var pendingSelections: [String: String] = [:]
     @Published private(set) var lastConnectionError: String?
+    @Published private(set) var lastConnectionStage: String?
+    @Published private(set) var connectionTimeline: [String] = []
 
     private let dependencies: Dependencies?
     private var startAttemptGeneration: UInt = 0
     private var activeStartAttemptGeneration: UInt?
+    private var connectionAttemptStartedAt: Date?
 
     public override init() {
         dependencies = nil
@@ -83,6 +86,10 @@ public final class OverviewViewModel: BaseViewModel {
         if activeStartAttemptGeneration != nil {
             switch status {
             case .invalid, .disconnected:
+                let state = status == .invalid ? "invalid" : "disconnected"
+                let interruptedStage = lastConnectionStageBeforeDisconnect
+                recordStage("Extension disconnected")
+                lastConnectionError = "Extension became \(state) while \(interruptedStage.lowercased())"
                 invalidateStartAttempt()
                 phase = .disconnected
             case .disconnecting:
@@ -110,6 +117,10 @@ public final class OverviewViewModel: BaseViewModel {
         case .disconnecting:
             phase = .disconnecting
         case .invalid, .disconnected:
+            if phase == .connected, lastConnectionStage == "Connected" {
+                recordStage("Extension disconnected")
+                lastConnectionError = "Extension disconnected immediately after startup completed"
+            }
             phase = .disconnected
         @unknown default:
             phase = .disconnected
@@ -154,6 +165,9 @@ public final class OverviewViewModel: BaseViewModel {
         activeStartAttemptGeneration = attemptGeneration
         phase = .connecting
         lastConnectionError = nil
+        if lastConnectionStage != "Subscription ready" {
+            beginTimeline()
+        }
 
         do {
             try await RuleConnectionTransaction.run(using: .init(
@@ -163,11 +177,15 @@ public final class OverviewViewModel: BaseViewModel {
                 setRuleMode: dependencies.setRuleMode,
                 shouldContinue: { [weak self] in
                     self?.isCurrentStartAttempt(attemptGeneration) == true
+                },
+                onStage: { [weak self] stage in
+                    self?.recordStage(stage.rawValue)
                 }
             ))
             guard isCurrentStartAttempt(attemptGeneration) else { return }
             completeStartAttempt(attemptGeneration)
             phase = .connected
+            recordStage("Connected")
         } catch is CancellationError {
             return
         } catch let failure as RuleConnectionTransaction.Failure {
@@ -183,6 +201,59 @@ public final class OverviewViewModel: BaseViewModel {
             lastConnectionError = error.localizedDescription
             alert = AlertState(action: "start service", error: error)
         }
+    }
+
+    func beginConnectionPreparation() {
+        lastConnectionError = nil
+        beginTimeline()
+        recordStage("Preparing subscription")
+    }
+
+    func completeConnectionPreparation() {
+        recordStage("Subscription ready")
+    }
+
+    func failConnectionPreparation(_ error: Error) {
+        recordStage("Subscription preparation failed")
+        lastConnectionError = error.localizedDescription
+        alert = AlertState(action: "prepare subscription", error: error)
+    }
+
+    func surfaceDisconnectFailure(_ disconnectAlert: AlertState) {
+        recordStage("Extension disconnected")
+        lastConnectionError = disconnectAlert.message
+        alert = disconnectAlert
+    }
+
+    func completeManualConfigurationRefresh() {
+        alert = AlertState(
+            title: String(localized: "配置更新成功"),
+            message: String(localized: "sing.conf 已重新下载并通过校验。")
+        )
+    }
+
+    func failManualConfigurationRefresh(_ error: Error) {
+        lastConnectionError = error.localizedDescription
+        alert = AlertState(action: "refresh sing.conf", error: error)
+    }
+
+    private func beginTimeline() {
+        connectionAttemptStartedAt = Date()
+        connectionTimeline = []
+        lastConnectionStage = nil
+    }
+
+    private func recordStage(_ stage: String) {
+        let elapsed = Date().timeIntervalSince(connectionAttemptStartedAt ?? Date())
+        lastConnectionStage = stage
+        connectionTimeline.append(String(format: "+%.3fs %@", elapsed, stage))
+    }
+
+    private var lastConnectionStageBeforeDisconnect: String {
+        connectionTimeline.last?
+            .split(separator: " ", maxSplits: 1)
+            .last
+            .map(String.init) ?? "starting"
     }
 
     private func invalidateStartAttempt() {
@@ -237,6 +308,8 @@ public final class OverviewViewModel: BaseViewModel {
 
     public func copyReport(
         logs: [LogEntry],
+        serviceLogs: String = "",
+        profileUpdateLogs: String = "",
         version: String,
         status: String,
         profile: String,
@@ -249,18 +322,28 @@ public final class OverviewViewModel: BaseViewModel {
             profile: profile,
             group: group,
             node: node,
-            lastConnectionError: lastConnectionError
+            lastConnectionError: lastConnectionError,
+            lastConnectionStage: lastConnectionStage
         )
         let runtimeLogs = logs.isEmpty
             ? "No runtime logs captured."
             : logs.map(\.message).joined(separator: "\n")
-        let report = "\(diagnostics)\n\nLogs:\n\(runtimeLogs)"
+        let timeline = connectionTimeline.isEmpty ? "No connection attempt captured." : connectionTimeline.joined(separator: "\n")
+        let serviceLogTail = NetworkDashboardState.serviceLogTail(from: serviceLogs)
+        let sanitizedServiceLogs = serviceLogTail.isEmpty
+            ? "No service logs captured."
+            : NetworkDashboardState.sanitizedDiagnosticText(serviceLogTail)
+        let updateLogs = profileUpdateLogs.isEmpty ? "No profile update logs captured." : profileUpdateLogs
+        let report = "\(diagnostics)\n\nConnection timeline:\n\(timeline)" +
+            "\n\nRuntime logs:\n\(runtimeLogs)\n\nService logs:\n\(sanitizedServiceLogs)" +
+            "\n\nConfiguration and extension diagnostics:\n\(updateLogs)"
+        let sanitizedReport = NetworkDashboardState.sanitizedDiagnosticText(report)
 
         do {
             if let dependencies {
-                try dependencies.copy(report)
+                try dependencies.copy(sanitizedReport)
             } else {
-                try Self.writeToClipboard(report)
+                try Self.writeToClipboard(sanitizedReport)
             }
             alert = AlertState(
                 title: String(localized: "Report Bug"),

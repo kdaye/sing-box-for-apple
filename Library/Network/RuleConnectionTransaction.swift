@@ -10,19 +10,22 @@ public enum RuleConnectionTransaction {
         public let waitUntilReady: @MainActor () async throws -> Void
         public let setRuleMode: @MainActor () async throws -> Void
         public let shouldContinue: @MainActor () -> Bool
+        public let onStage: @MainActor (Stage) -> Void
 
         public init(
             start: @escaping @MainActor () async throws -> Void,
             stop: @escaping @MainActor () async throws -> Void,
             waitUntilReady: @escaping @MainActor () async throws -> Void,
             setRuleMode: @escaping @MainActor () async throws -> Void,
-            shouldContinue: @escaping @MainActor () -> Bool = { true }
+            shouldContinue: @escaping @MainActor () -> Bool = { true },
+            onStage: @escaping @MainActor (Stage) -> Void = { _ in }
         ) {
             self.start = start
             self.stop = stop
             self.waitUntilReady = waitUntilReady
             self.setRuleMode = setRuleMode
             self.shouldContinue = shouldContinue
+            self.onStage = onStage
         }
     }
 
@@ -80,10 +83,12 @@ public enum RuleConnectionTransaction {
 
     public static func run(using dependencies: Dependencies) async throws {
         try checkContinuation(using: dependencies)
+        dependencies.onStage(.startingExtension)
         try await dependencies.start()
 
         do {
             try checkContinuation(using: dependencies)
+            dependencies.onStage(.waitingForCommandChannel)
             try await dependencies.waitUntilReady()
             try checkContinuation(using: dependencies)
         } catch is CancellationError {
@@ -93,6 +98,7 @@ public enum RuleConnectionTransaction {
         }
 
         do {
+            dependencies.onStage(.settingRuleMode)
             try await dependencies.setRuleMode()
             try checkContinuation(using: dependencies)
         } catch is CancellationError {
@@ -124,7 +130,13 @@ public enum RuleConnectionTransaction {
         )
     }
 
-    private enum Stage {
+    public enum Stage: String, Sendable {
+        case startingExtension = "Starting extension"
+        case waitingForCommandChannel = "Waiting for Rule command channel"
+        case settingRuleMode = "Setting Rule mode"
+    }
+
+    private enum FailureStage {
         case readiness
         case ruleMode
     }
@@ -137,7 +149,7 @@ public enum RuleConnectionTransaction {
 
     private static func failure(
         for error: Error,
-        stage: Stage,
+        stage: FailureStage,
         dependencies: Dependencies
     ) async -> Failure {
         let stopError: Error?

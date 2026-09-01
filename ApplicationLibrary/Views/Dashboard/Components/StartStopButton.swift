@@ -102,6 +102,12 @@ public struct StartStopButton: View {
                 }
             }
             .labelStyle(.iconOnly)
+            .highPriorityGesture(
+                LongPressGesture(minimumDuration: 0.7).onEnded { _ in
+                    guard !profile.status.isConnected else { return }
+                    Task { await refreshConfiguration() }
+                }
+            )
             #if os(iOS)
                 .modifier(PrimaryTintModifier())
             #endif
@@ -152,11 +158,17 @@ public struct StartStopButton: View {
                 // what re-syncs that selection. Skipping it whenever a profile
                 // happens to exist already reintroduces "Missing selected profile".
                 isPreparingDefaultProfile = true
-                await ensureDefaultProfile()
+                coordinator.beginConnectionPreparation()
+                do {
+                    try await ensureDefaultProfile()
+                    coordinator.completeConnectionPreparation()
+                } catch {
+                    coordinator.failConnectionPreparation(error)
+                    isPreparingDefaultProfile = false
+                    return
+                }
                 isPreparingDefaultProfile = false
-                // Preparation may have failed (e.g. no network yet); the hook is
-                // responsible for surfacing its own error. Don't attempt to start
-                // with nothing to run.
+                // Don't attempt to start with nothing to run.
                 guard !environments.emptyProfiles else { return }
             }
             await coordinator.toggleConnection(profile: profile, environments: environments)
@@ -164,8 +176,22 @@ public struct StartStopButton: View {
                #available(iOS 16.0, macOS 13.0, tvOS 17.0, *),
                let startupAlert = await profile.checkLastDisconnectError()
             {
-                coordinator.alert = startupAlert
+                coordinator.surfaceDisconnectFailure(startupAlert)
             }
+        }
+
+        private func refreshConfiguration() async {
+            guard !isPreparingDefaultProfile,
+                  let refreshDefaultProfile = environments.refreshDefaultProfile
+            else { return }
+            isPreparingDefaultProfile = true
+            do {
+                try await refreshDefaultProfile()
+                coordinator.completeManualConfigurationRefresh()
+            } catch {
+                coordinator.failManualConfigurationRefresh(error)
+            }
+            isPreparingDefaultProfile = false
         }
     }
 }

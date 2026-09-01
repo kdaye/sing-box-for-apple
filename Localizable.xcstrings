@@ -7469,6 +7469,9 @@
       },
       "shouldTranslate" : false
     },
+    "sing.conf 已重新下载并通过校验。" : {
+
+    },
     "Slice Size" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -9161,6 +9164,9 @@
 
     },
     "配置保存失败" : {
+
+    },
+    "配置更新成功" : {
 
     },
     "配置校验失败" : {

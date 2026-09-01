@@ -8,6 +8,7 @@ import SwiftUI
         let phase: NetworkDashboardPhase
         let status: LibboxStatusMessage?
         let preparationStatus: String?
+        let longPressAction: (() -> Void)?
         let action: () -> Void
 
         private var isConnected: Bool {
@@ -129,6 +130,12 @@ import SwiftUI
                 .contentShape(Circle())
             }
             .buttonStyle(.plain)
+            .highPriorityGesture(
+                LongPressGesture(minimumDuration: 0.7).onEnded { _ in
+                    guard phase == .disconnected else { return }
+                    longPressAction?()
+                }
+            )
             .disabled(isTransitioning)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("network.power")

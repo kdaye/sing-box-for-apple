@@ -230,7 +230,10 @@ public struct OverviewView: View {
                             status: commandClient.status,
                             preparationStatus: isPreparingDefaultProfile
                                 ? String(localized: "正在获取订阅配置…")
-                                : preparationStatus
+                                : preparationStatus,
+                            longPressAction: environments.refreshDefaultProfile == nil ? nil : {
+                                Task { await refreshConfiguration() }
+                            }
                         ) {
                             Task {
                                 await startConnection()
@@ -299,18 +302,48 @@ public struct OverviewView: View {
 
         private func startConnection() async {
             guard !isPreparingDefaultProfile else { return }
-            if !profile.status.isConnected, let ensureDefaultProfile = environments.ensureDefaultProfile {
+            let isStarting = !profile.status.isConnected
+            if isStarting, let ensureDefaultProfile = environments.ensureDefaultProfile {
                 // A variant (e.g. SFI) can install this hook to fetch/create its
                 // bundled subscription on demand. Run it unconditionally here too -
                 // not just when the profile list is empty - since a profile record
                 // can already exist locally while the persisted selection is still
                 // unset or stale; this hook is also what re-syncs that selection.
                 isPreparingDefaultProfile = true
-                await ensureDefaultProfile()
+                coordinator.beginConnectionPreparation()
+                do {
+                    try await ensureDefaultProfile()
+                    coordinator.completeConnectionPreparation()
+                } catch {
+                    coordinator.failConnectionPreparation(error)
+                    isPreparingDefaultProfile = false
+                    return
+                }
                 isPreparingDefaultProfile = false
                 guard !environments.emptyProfiles else { return }
             }
             await coordinator.toggleConnection(profile: profile, environments: environments)
+            if isStarting, profile.status == .disconnected,
+               #available(iOS 16.0, macOS 13.0, tvOS 17.0, *),
+               let startupAlert = await profile.checkLastDisconnectError()
+            {
+                coordinator.surfaceDisconnectFailure(startupAlert)
+            }
+        }
+
+        private func refreshConfiguration() async {
+            guard coordinator.phase == .disconnected,
+                  !isPreparingDefaultProfile,
+                  let refreshDefaultProfile = environments.refreshDefaultProfile
+            else { return }
+            isPreparingDefaultProfile = true
+            do {
+                try await refreshDefaultProfile()
+                coordinator.completeManualConfigurationRefresh()
+            } catch {
+                coordinator.failManualConfigurationRefresh(error)
+            }
+            isPreparingDefaultProfile = false
         }
 
         private var header: some View {
@@ -390,14 +423,20 @@ public struct OverviewView: View {
 
         private var reportButton: some View {
             Button {
-                coordinator.copyReport(
-                    logs: commandClient.logList,
-                    version: version,
-                    status: statusDescription,
-                    profile: selectedProfileName,
-                    group: selectedGroupName,
-                    node: primaryGroup == nil ? nil : selectedNode
-                )
+                Task {
+                    let serviceLogs = await loadServiceLogs()
+                    let profileUpdateLogs = await loadProfileUpdateLogs()
+                    coordinator.copyReport(
+                        logs: commandClient.logList,
+                        serviceLogs: serviceLogs,
+                        profileUpdateLogs: profileUpdateLogs,
+                        version: version,
+                        status: statusDescription,
+                        profile: selectedProfileName,
+                        group: selectedGroupName,
+                        node: primaryGroup == nil ? nil : selectedNode
+                    )
+                }
             } label: {
                 Label(String(localized: "Report Bug"), systemImage: "ladybug")
                     .font(.caption.weight(.semibold))
@@ -408,6 +447,29 @@ public struct OverviewView: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("network.reportBug")
             .accessibilityLabel(String(localized: "Report Bug"))
+        }
+
+        private nonisolated func loadServiceLogs() async -> String {
+            await BlockingIO.run {
+                let primaryURL = FilePath.cacheDirectory.appendingPathComponent("stderr.log")
+                let secondaryURL = FilePath.cacheDirectory.appendingPathComponent("stderr.log.old")
+                let primary = (try? NetworkDashboardState.readServiceLogTail(
+                    at: primaryURL, maximumLines: 100, maximumCharacters: 30_000
+                )) ?? ""
+                let secondary = (try? NetworkDashboardState.readServiceLogTail(
+                    at: secondaryURL, maximumLines: 100, maximumCharacters: 30_000
+                )) ?? ""
+                return [("stderr.log.old", secondary), ("stderr.log", primary)]
+                    .filter { !$0.1.isEmpty }
+                    .map { "--- \($0.0) ---\n\($0.1)" }
+                    .joined(separator: "\n")
+            }
+        }
+
+        private nonisolated func loadProfileUpdateLogs() async -> String {
+            await BlockingIO.run {
+                (try? ProfileUpdateDiagnostics.read()) ?? ""
+            }
         }
     }
 #endif
